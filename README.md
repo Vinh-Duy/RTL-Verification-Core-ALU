@@ -71,19 +71,19 @@ gtkwave adder_waveform.vcd
 Upon successful execution, the automated testbench will generate the following assertions in your terminal console logs:
 
 ```text
-=================================================
-[START] Bat dau chay Verification cho Adder 8-bit
-=================================================
+
+[START]
+
 [PASS] TC1: 15 + 25 = 40
 [PASS] TC2: 255 + 1 = 256 (Giu duoc bit tran ok!)
---- Chay nguyen nhien 20 cap so tu dong ---
+Chay nguyen nhien 20 cap so tu dong
 [PASS] Cap 0: 142 + 53 = 195
 [PASS] Cap 1: 12 + 201 = 213
 ...
 [PASS] Cap 19: 88 + 114 = 202
-=================================================
-[SUCCESS] Hoan thanh tat ca cac Testcases!
-=================================================
+
+[SUCCESS]
+
 ```
 
 ---
