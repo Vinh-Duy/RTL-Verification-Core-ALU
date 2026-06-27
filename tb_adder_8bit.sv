@@ -42,6 +42,21 @@ module tb_adder_8bit;
             $error("[FAIL] TC2: Loi tran bit! Ket qua ra: %d", t_sum);
         end
 
+        // TESTCASE 3: Constrained Random Verification (CRV) nhẹ ---
+        // Sinh ngẫu nhiên liên tục 20 cặp số để test tự động
+        $display("Chay nguyen nhien 20 cap so tu dong");
+        for (int i = 0; i < 20; i++) begin
+            t_a = $urandom_range(0, 255);
+            t_b = $urandom_range(0, 255);
+            #10;
+            
+            if (t_sum == (t_a + t_b)) begin
+                $display("[PASS] Cap %0d: %d + %d = %d", i, t_a, t_b, t_sum);
+            end else begin
+                $error("[FAIL] Cap %0d: %d + %d bi SAI! Ra: %d", i, t_a, t_b, t_sum);
+            end
+        end
+
         $display("");
         $display("[SUCCESS]");
         $display("");
