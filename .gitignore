@@ -1,0 +1,13 @@
+# === Icarus Verilog & Simulation Output ===
+# Bỏ qua file thực thi nhị phân do iverilog tạo ra
+adder_sim
+*_sim
+*.out
+
+# === Waveform files (GTKWave) ===
+# Bỏ qua các file lưu dữ liệu dạng sóng tín hiệu điện
+*.vcd
+
+# === OS generated files ===
+# Bỏ qua file rác tự sinh của hệ điều hành macOS
+.DS_Store
