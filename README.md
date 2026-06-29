@@ -4,7 +4,7 @@ A professional hardware verification portfolio demonstrating the evolution from 
 
 ---
 
-## 📌 Project Overview
+## Project Overview
 
 This repository captures the progressive development of an ASIC verification environment. It starts from a foundational 8-bit adder and scales up to a multi-operation ALU. To prove verification competency, the project features two distinct testbench architectures:
 
@@ -20,7 +20,7 @@ This repository captures the progressive development of an ASIC verification env
 
 ---
 
-## 📂 Directory Structure
+## Directory Structure
 
 ```text
 .
@@ -39,16 +39,16 @@ This repository captures the progressive development of an ASIC verification env
 
 ---
 
-## 🛠️ Prerequisites & Toolchains
+## Prerequisites & Toolchains
 
 * **For Flat Testbench (Local Simulation):** Icarus Verilog (`iverilog` v12.0+) and GTKWave.
 * **For OOP Testbench (Advanced SV Features):** Commercial simulators (e.g., Aldec Riviera-PRO, Siemens Questa, Synopsys VCS, ModelSim). Highly recommended to run via EDA Playground as open-source `iverilog` has limited OOP support.
 
 ---
 
-## 🚀 How to Compile and Run
+## How to Compile and Run
 
-### 🍎 Local Simulation (macOS / Linux / Windows) - Flat Testbench
+### Local Simulation (macOS / Linux / Windows) - Flat Testbench
 For the sequential Flat Testbench, you can use the open-source **Icarus Verilog** toolchain across any operating system. Run these commands in your terminal/command prompt:
 
 ```bash
@@ -62,7 +62,7 @@ vvp alu_flat_sim
 gtkwave alu_flat_waveform.vcd
 ```
 
-### 🪟 Windows (Local) - OOP Testbench
+### Windows (Local) - OOP Testbench
 Since open-source `iverilog` lacks full support for SystemVerilog OOP, Windows users with commercial simulators like **ModelSim** or **QuestaSim** (often provided via Intel Quartus or university licenses) can run the OOP Testbench using the following TCL commands in the simulator transcript or command prompt:
 
 ```tcl
@@ -76,7 +76,7 @@ vlog -sv rtl/alu_8bit.sv tb/tb_alu_oop.sv
 vsim -c tb_alu_oop -do "run -all; quit"
 ```
 
-### 🌐 Cloud Simulation (Cross-Platform) - OOP Testbench
+### Cloud Simulation (Cross-Platform) - OOP Testbench
 If you do not have a commercial simulator installed locally, it is highly recommended to run the OOP Testbench via [EDA Playground](https://www.edaplayground.com/).
 
 1. Upload both `rtl/alu_8bit.sv` and `tb/tb_alu_oop.sv`.
@@ -85,7 +85,7 @@ If you do not have a commercial simulator installed locally, it is highly recomm
 
 ---
 
-## 📊 Expected Simulation Outputs
+## Expected Simulation Outputs
 
 Upon successful execution, the automated scoreboard will generate terminal logs similar to this:
 
@@ -109,7 +109,7 @@ Upon successful execution, the automated scoreboard will generate terminal logs 
 
 ---
 
-## 🗺️ Roadmap & Milestones
+## Roadmap & Milestones
 
 * [x] **Phase 1: ALU Expansion:** Upgraded the 8-bit Adder into a full-scale ALU.
 * [x] **Phase 2: Object-Oriented Architecture:** Restructured the testbench into modular SV OOP components (Generator, Driver, Scoreboard, Environment).
