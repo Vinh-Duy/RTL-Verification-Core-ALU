@@ -78,9 +78,9 @@ gtkwave alu_flat_waveform.vcd
 Upon successful execution, the automated scoreboard will generate terminal logs similar to this:
 
 ```text
-=================================================
-[START] Chay OOP Verification cho ALU 8-bit
-=================================================
+
+[START]
+
 [PASS] ADD | a= 33, b=  5 | Result=   38
 [PASS] SUB | a= 10, b=  4 | Result=    6
 [PASS] MUL | a= 31, b= 16 | Result=  496
@@ -90,9 +90,9 @@ Upon successful execution, the automated scoreboard will generate terminal logs 
 [PASS] XOR | a= 49, b= 16 | Result=   33
 [PASS] SHL | a= 50, b=  8 | Result=   50
 ...
-=================================================
-[SUCCESS] Hoan thanh tat ca Testcases OOP!
-=================================================
+
+[SUCCESS]
+
 ```
 
 ---
