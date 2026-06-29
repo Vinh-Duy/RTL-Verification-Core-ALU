@@ -42,34 +42,46 @@ This repository captures the progressive development of an ASIC verification env
 ## 🛠️ Prerequisites & Toolchains
 
 * **For Flat Testbench (Local Simulation):** Icarus Verilog (`iverilog` v12.0+) and GTKWave.
-* **For OOP Testbench (Advanced SV Features):** Commercial simulators (e.g., Aldec Riviera-PRO, Siemens Questa, Synopsys VCS). Highly recommended to run via EDA Playground as open-source `iverilog` has limited OOP support.
+* **For OOP Testbench (Advanced SV Features):** Commercial simulators (e.g., Aldec Riviera-PRO, Siemens Questa, Synopsys VCS, ModelSim). Highly recommended to run via EDA Playground as open-source `iverilog` has limited OOP support.
 
 ---
 
-## 🚀 How to Compile and Run (Local MacOS/Linux)
+## 🚀 How to Compile and Run
 
-Run the following commands in the root directory to execute the Flat ALU Testbench:
-
-### 1. Compilation
-Compile the SystemVerilog source files with explicit pathing:
+### 🍎 Local Simulation (macOS / Linux / Windows) - Flat Testbench
+For the sequential Flat Testbench, you can use the open-source **Icarus Verilog** toolchain across any operating system. Run these commands in your terminal/command prompt:
 
 ```bash
+# 1. Compile with SystemVerilog 2012 support
 iverilog -g2012 -o alu_flat_sim rtl/alu_8bit.sv tb/tb_alu_flat.sv
-```
 
-### 2. Execution
-Run the generated simulation binary:
-
-```bash
+# 2. Execute the simulation
 vvp alu_flat_sim
-```
 
-### 3. Waveform Visualization
-To inspect the physical signal transitions (0s and 1s) across the timeline:
-
-```bash
+# 3. Open waveform (Ensure GTKWave is installed)
 gtkwave alu_flat_waveform.vcd
 ```
+
+### 🪟 Windows (Local) - OOP Testbench
+Since open-source `iverilog` lacks full support for SystemVerilog OOP, Windows users with commercial simulators like **ModelSim** or **QuestaSim** (often provided via Intel Quartus or university licenses) can run the OOP Testbench using the following TCL commands in the simulator transcript or command prompt:
+
+```tcl
+# 1. Create a working library
+vlib work
+
+# 2. Compile Design and OOP Testbench
+vlog -sv rtl/alu_8bit.sv tb/tb_alu_oop.sv
+
+# 3. Run Simulation (Command Line Interface mode)
+vsim -c tb_alu_oop -do "run -all; quit"
+```
+
+### 🌐 Cloud Simulation (Cross-Platform) - OOP Testbench
+If you do not have a commercial simulator installed locally, it is highly recommended to run the OOP Testbench via [EDA Playground](https://www.edaplayground.com/).
+
+1. Upload both `rtl/alu_8bit.sv` and `tb/tb_alu_oop.sv`.
+2. Select a commercial simulator (e.g., Aldec Riviera-PRO or Siemens Questa).
+3. Check "Open EPWave after run" to visualize the `.vcd` waveform output.
 
 ---
 
