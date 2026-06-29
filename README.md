@@ -1,19 +1,22 @@
-# 8-bit Adder RTL Design & Self-Checking Verification Testbench
+# 8-bit ALU RTL Design & Advanced OOP Verification Testbench
 
-A professional hardware verification project demonstrating a **Self-Checking Testbench** with **Constrained Random Verification (CRV)** concepts implemented in **SystemVerilog 2012**. Designed and simulated locally on macOS using open-source EDA tools.
+A professional hardware verification portfolio demonstrating the evolution from a basic combinational circuit to a full-scale **Arithmetic Logic Unit (ALU)**. The project showcases both **Flat Self-Checking** and **Advanced Object-Oriented Programming (OOP) Constrained Random Verification (CRV)** environments implemented in **SystemVerilog 2012**.
 
 ---
 
 ## 📌 Project Overview
 
-This repository contains the RTL design of a combinational 8-bit adder and its corresponding advanced verification environment. Instead of manually inspecting waveform diagrams, this testbench utilizes an automated **Scoreboard mechanism** to dynamically validate the correctness of the hardware design against a behavioral reference model.
+This repository captures the progressive development of an ASIC verification environment. It starts from a foundational 8-bit adder and scales up to a multi-operation ALU. To prove verification competency, the project features two distinct testbench architectures:
+
+1. **Flat Self-Checking Testbench:** A traditional sequential approach using loops and dynamic scoreboard checking.
+2. **Standard OOP Architecture:** A production-grade environment utilizing SystemVerilog Classes, Mailboxes, Interfaces, and Virtual Interfaces to decouple stimulus generation, driving, and monitoring, completely eliminating race conditions.
 
 ### Key Features
 
-* **Modern SystemVerilog Syntax:** Utilizes fully integrated `logic` datatypes and modern constructs instead of legacy Verilog-2001 `wire/reg`.
-* **Directed Testcases:** Targets specific critical design aspects including basic arithmetic operations and extreme boundary values (Overflow conditions).
-* **Constrained Random Verification (CRV):** Simulates 20 automated, pseudo-randomly generated stimulus pairs using `$urandom_range` to ensure robust functional coverage.
-* **Automated Self-Checking:** Implements a dynamic monitoring system that prints detailed `[PASS]` or `[FAIL]` indicators, eliminating the need for manual inspection.
+* **Multi-operation ALU RTL:** Supports 8 opcodes including ADD, SUB, MUL, DIV (with zero-division protection), AND, OR, XOR, and SHL.
+* **Evolutionary Project Structure:** Clean separation of Design (`rtl/`) and Verification (`tb/`) files.
+* **Constrained Random Verification (CRV):** Intelligent randomization ensuring high edge-case coverage without illegal states (e.g., constraining denominator `b != 0` during division).
+* **Clockless Race-Condition Handling:** Implemented strategic delays (`#4` and `#1`) within the OOP Scoreboard to perfectly sync with the Driver, preventing simulation hang and data overriding.
 
 ---
 
@@ -21,81 +24,86 @@ This repository contains the RTL design of a combinational 8-bit adder and its c
 
 ```text
 .
-├── adder_8bit.sv       # Design Under Test (DUT) - RTL Core
-├── tb_adder_8bit.sv    # Self-Checking Testbench Environment
-├── .gitignore          # Excludes simulation binaries and heavy VCD files
-└── README.md           # Documentation
+├── rtl/                        # Design Under Test (RTL Core)
+│   ├── adder_8bit.sv           # (Phase 0) Basic 8-bit Adder
+│   └── alu_8bit.sv             # (Phase 1) 8-bit ALU (8 Operations)
+│
+├── tb/                         # Verification Environment
+│   ├── tb_adder_8bit.sv        # (Phase 0) Basic Testbench
+│   ├── tb_alu_flat.sv          # (Phase 1a) Flat Self-Checking Testbench
+│   └── tb_alu_oop.sv           # (Phase 1b) OOP SV Architecture Testbench
+│
+├── .gitignore                  # Excludes simulation binaries and VCD files
+└── README.md                   # Documentation
 ```
 
 ---
 
 ## 🛠️ Prerequisites & Toolchains
 
-The simulation environment relies strictly on open-source, lightweight, yet powerful EDA tools:
-
-* **Compiler/Simulator:** Icarus Verilog (`iverilog` v12.0+)
-* **Simulation Runtime:** Virtual Verification Processor (`vvp`)
-* **Waveform Viewer:** GTKWave (via XQuartz on macOS environment)
+* **For Flat Testbench (Local Simulation):** Icarus Verilog (`iverilog` v12.0+) and GTKWave.
+* **For OOP Testbench (Advanced SV Features):** Commercial simulators (e.g., Aldec Riviera-PRO, Siemens Questa, Synopsys VCS). Highly recommended to run via EDA Playground as open-source `iverilog` has limited OOP support.
 
 ---
 
-## 🚀 How to Compile and Run
+## 🚀 How to Compile and Run (Local MacOS/Linux)
 
-Follow these commands in your terminal to execute the simulation locally:
+Run the following commands in the root directory to execute the Flat ALU Testbench:
 
 ### 1. Compilation
-Compile the SystemVerilog source files using the IEEE 1800-2012 standard flag (`-g2012`):
+Compile the SystemVerilog source files with explicit pathing:
 
 ```bash
-iverilog -g2012 -o adder_sim adder_8bit.sv tb_adder_8bit.sv
+iverilog -g2012 -o alu_flat_sim rtl/alu_8bit.sv tb/tb_alu_flat.sv
 ```
 
 ### 2. Execution
-Run the generated simulation binary executable using `vvp`:
+Run the generated simulation binary:
 
 ```bash
-vvp adder_sim
+vvp alu_flat_sim
 ```
 
 ### 3. Waveform Visualization
-To inspect the physical signal transitions (0s and 1s) across the timeline, load the dumped Value Change Dump (`.vcd`) file into GTKWave:
+To inspect the physical signal transitions (0s and 1s) across the timeline:
 
 ```bash
-gtkwave adder_waveform.vcd
+gtkwave alu_flat_waveform.vcd
 ```
 
 ---
 
 ## 📊 Expected Simulation Outputs
 
-Upon successful execution, the automated testbench will generate the following assertions in your terminal console logs:
+Upon successful execution, the automated scoreboard will generate terminal logs similar to this:
 
 ```text
-
-[START]
-
-[PASS] TC1: 15 + 25 = 40
-[PASS] TC2: 255 + 1 = 256 (Giu duoc bit tran ok!)
-Chay nguyen nhien 20 cap so tu dong
-[PASS] Cap 0: 142 + 53 = 195
-[PASS] Cap 1: 12 + 201 = 213
+=================================================
+[START] Chay OOP Verification cho ALU 8-bit
+=================================================
+[PASS] ADD | a= 33, b=  5 | Result=   38
+[PASS] SUB | a= 10, b=  4 | Result=    6
+[PASS] MUL | a= 31, b= 16 | Result=  496
+[PASS] DIV | a= 18, b=  1 | Result=   18
+[PASS] AND | a= 30, b= 11 | Result=   10
+[PASS] OR  | a= 39, b= 13 | Result=   47
+[PASS] XOR | a= 49, b= 16 | Result=   33
+[PASS] SHL | a= 50, b=  8 | Result=   50
 ...
-[PASS] Cap 19: 88 + 114 = 202
-
-[SUCCESS]
-
+=================================================
+[SUCCESS] Hoan thanh tat ca Testcases OOP!
+=================================================
 ```
 
 ---
 
-## 🗺️ Future Roadmap
+## 🗺️ Roadmap & Milestones
 
-To further escalate this portfolio to production-grade verification standards, the following milestones are planned:
-
-* **Phase 1: ALU Expansion:** Upgrade the current 8-bit Adder into a full-scale Arithmetic Logic Unit (ALU) capable of performing execution operations (ADD, SUB, AND, OR, XOR, MUL) mapped via custom operation selection codes (Opcodes).
-* **Phase 2: Object-Oriented Testbench Architecture:** Restructure the flat testbench layout into modular verification components using SystemVerilog OOP constructs (Classes, Mailboxes, and Interfaces) to explicitly decouple stimulus generation from driver execution.
-* **Phase 3: Functional Coverage Integration:** Implement dedicated covergroups and coverpoints to track structural and functional assertion coverage, aiming for a quantified 100% verification metric before virtual physical layout tape-out simulation.
+* [x] **Phase 1: ALU Expansion:** Upgraded the 8-bit Adder into a full-scale ALU.
+* [x] **Phase 2: Object-Oriented Architecture:** Restructured the testbench into modular SV OOP components (Generator, Driver, Scoreboard, Environment).
+* [ ] **Phase 3: Functional Coverage:** Implement SystemVerilog covergroups and coverpoints to track functional coverage.
+* [ ] **Phase 4: UVM Integration:** Migrate the current custom OOP architecture into the industry-standard Universal Verification Methodology (UVM) framework.
 
 ---
 
-> *Developed as a part of Hardware Verification Portfolio for Advanced IC Design Engineering track.*
+> *Developed as a part of a Hardware Verification Portfolio for the Advanced IC Design Engineering track.*
