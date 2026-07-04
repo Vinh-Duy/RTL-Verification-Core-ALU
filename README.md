@@ -30,8 +30,9 @@ This repository captures the progressive development of an ASIC verification env
 │
 ├── tb/                         # Verification Environment
 │   ├── tb_adder_8bit.sv        # (Phase 0) Basic Testbench
-│   ├── tb_alu_flat.sv          # (Phase 1a) Flat Self-Checking Testbench
-│   └── tb_alu_oop.sv           # (Phase 1b) OOP SV Architecture Testbench
+│   ├── tb_alu_flat.sv          # (Phase 1) Flat Self-Checking Testbench
+│   ├── tb_alu_oop.sv           # (Phase 2) Pure OOP Testbench Architecture (20 TCs)
+│   └── tb_alu_coverage.sv      # (Phase 3) OOP + Functional Coverage Testbench (200 TCs)
 │
 ├── .gitignore                  # Excludes simulation binaries and VCD files
 └── README.md                   # Documentation
