@@ -110,11 +110,26 @@ Upon successful execution, the automated scoreboard will generate terminal logs 
 
 ---
 
+## 🚀 Phase 3: Functional Coverage & High-Volume CRV (200 Test Cases)
+
+Moving beyond traditional Pass/Fail testing, this phase implements **SystemVerilog Functional Coverage** to statistically prove that the verification environment has thoroughly exercised the ALU design. The transaction volume was heavily scaled from 20 to **200 randomized test cases**.
+
+### ✨ Key Coverage Features Implemented:
+* **Covergroups & Coverpoints:** Defined dedicated covergroups within the OOP architecture to sample transactions dynamically.
+* **Opcode Coverage:** Ensured 100% hit rate across all 8 arithmetic and logical operations.
+* **Operand Boundary Tracking:** Created specific coverpoint bins to capture critical boundary values for input `a`, including:
+  * `MIN` values (`8'h00`)
+  * `MAX` values (`8'hFF`)
+  * `Typical` mid-range values (`1` to `254`)
+* **Simulation Output:** At the end of the simulation, the testbench reports the overall coverage percentage, ensuring the design is well-tested.
+
+---
+
 ## Roadmap & Milestones
 
 * [x] **Phase 1: ALU Expansion:** Upgraded the 8-bit Adder into a full-scale ALU.
 * [x] **Phase 2: Object-Oriented Architecture:** Restructured the testbench into modular SV OOP components (Generator, Driver, Scoreboard, Environment).
-* [ ] **Phase 3: Functional Coverage:** Implement SystemVerilog covergroups and coverpoints to track functional coverage.
+* [x] **Phase 3: Functional Coverage:** Implemented SystemVerilog covergroups/coverpoints to track functional coverage across 200 randomized test cases.
 * [ ] **Phase 4: UVM Integration:** Migrate the current custom OOP architecture into the industry-standard Universal Verification Methodology (UVM) framework.
 
 ---
