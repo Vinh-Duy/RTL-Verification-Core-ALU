@@ -1,21 +1,27 @@
+`timescale 1ns/1ps
 module alu_8bit (
-    input  logic [7:0] a, b,      // 2 toán hạng 8-bit
-    input  logic [2:0] opcode,    // Mã lệnh điều khiển 3-bit (8 phép toán)
-    output logic [15:0] result    // Kết quả 16-bit (để chứa đủ phép nhân)
+    input  logic [7:0] a, b,
+    input  logic [2:0] opcode,
+    output logic [15:0] result
 );
+    localparam logic [2:0] ADD = 3'd0, SUB = 3'd1, MUL = 3'd2,
+                           DIV = 3'd3, AND_OP = 3'd4, OR_OP = 3'd5,
+                           XOR_OP = 3'd6, SHL = 3'd7;
+    wire [15:0] a_extended = {8'b0, a};
+    wire [15:0] b_extended = {8'b0, b};
+    wire [2:0] shift_amount = b[2:0];
 
     always_comb begin
         case (opcode)
-            3'b000: result = a + b;
-            3'b001: result = a - b;
-            3'b010: result = a * b;
-            3'b011: result = (b != 0) ? (a / b) : 0;
-            3'b100: result = a & b;
-            3'b101: result = a | b;
-            3'b110: result = a ^ b;
-            3'b111: result = a << b[2:0];
-            default: result = 16'h0000;
+            ADD:    result = a_extended + b_extended;
+            SUB:    result = a_extended - b_extended; // Modulo 65536.
+            MUL:    result = a_extended * b_extended;
+            DIV:    result = (b != 8'd0) ? a_extended / b_extended : 16'd0;
+            AND_OP: result = a_extended & b_extended;
+            OR_OP:  result = a_extended | b_extended;
+            XOR_OP: result = a_extended ^ b_extended;
+            SHL:    result = a_extended << shift_amount;
+            default: result = 16'd0; // Preserve unknown-opcode simulation fallback.
         endcase
     end
-
 endmodule
