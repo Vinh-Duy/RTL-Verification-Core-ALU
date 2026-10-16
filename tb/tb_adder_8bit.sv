@@ -1,66 +1,35 @@
 `timescale 1ns/1ps
-
 module tb_adder_8bit;
-
-    // 1. Khai báo các tín hiệu để kết nối với DUT
-    logic [7:0] t_a;
-    logic [7:0] t_b;
-    logic [8:0] t_sum;
-
-    // 2. Gọi khối DUT vào trong Testbench
-    adder_8bit dut (
-        .a(t_a),
-        .b(t_b),
-        .sum(t_sum)
-    );
-
-    // 3. Khối khởi tạo quy trình ném dữ liệu test
+    logic [7:0] a, b;
+    logic [8:0] sum;
+    integer total = 0, passed = 0, failed = 0, seed = 2026, rng_seed, unused;
+    string wave;
+    adder_8bit dut(.*);
+    task automatic check(input logic [7:0] aa, bb);
+        integer expected;
+        a = aa; b = bb;
+        expected = int'(aa) + int'(bb);
+        #1;
+        total++;
+        if ((^sum === 1'bx) || sum !== expected[8:0]) begin
+            failed++;
+            $display("MISMATCH id=%0d seed=%0d a=%0d b=%0d expected=%0d actual=%h",
+                     total-1, seed, a, b, expected, sum);
+        end else passed++;
+    endtask
     initial begin
-        // Để xuất file dạng sóng (.vcd) xem bằng GTKWave
-        $dumpfile("adder_waveform.vcd");
-        $dumpvars(0, tb_adder_8bit);
-
-        $display("");
-        $display("[START]");
-        $display("");
-
-        // TESTCASE 1: Kiểm thử giá trị cơ bản ---
-        t_a = 8'd15; t_b = 8'd25;
-        #10; // Đợi 10ns để mạch phản hồi
-        if (t_sum == 9'd40) begin
-            $display("[PASS] TC1: 15 + 25 = %d", t_sum);
-        end else begin
-            $error("[FAIL] TC1: Tinh sai! Ket qua ra: %d, Mong doi: 40", t_sum);
-        end
-
-        // TESTCASE 2: Kiểm thử giá trị biên (Max value / Overflow) ---
-        t_a = 8'd255; t_b = 8'd1;
-        #10;
-        if (t_sum == 9'd256) begin
-            $display("[PASS] TC2: 255 + 1 = %d (Giu duoc bit tran ok!)", t_sum);
-        end else begin
-            $error("[FAIL] TC2: Loi tran bit! Ket qua ra: %d", t_sum);
-        end
-
-        // TESTCASE 3: Constrained Random Verification (CRV) nhẹ ---
-        // Sinh ngẫu nhiên liên tục 20 cặp số để test tự động
-        $display("Chay nguyen nhien 20 cap so tu dong");
-        for (int i = 0; i < 20; i++) begin
-            t_a = $urandom_range(0, 255);
-            t_b = $urandom_range(0, 255);
-            #10;
-            
-            if (t_sum == (t_a + t_b)) begin
-                $display("[PASS] Cap %0d: %d + %d = %d", i, t_a, t_b, t_sum);
-            end else begin
-                $error("[FAIL] Cap %0d: %d + %d bi SAI! Ra: %d", i, t_a, t_b, t_sum);
-            end
-        end
-
-        $display("");
-        $display("[SUCCESS]");
-        $display("");
-        $finish;
+        unused = $value$plusargs("SEED=%d", seed);
+        rng_seed = seed; unused = $urandom(rng_seed);
+        if (!$value$plusargs("WAVE=%s", wave)) wave = "adder_waveform.vcd";
+        $dumpfile(wave); $dumpvars(0, tb_adder_8bit);
+        check(15, 25); check(255, 1);
+        for (int i = 0; i < 20; i++)
+            check(8'($urandom_range(0, 255)), 8'($urandom_range(0, 255)));
+        for (int aa = 0; aa < 256; aa++)
+            for (int bb = 0; bb < 256; bb++) check(8'(aa), 8'(bb));
+        $display("VERIFICATION SUMMARY total=%0d passed=%0d failed=%0d seed=%0d", total, passed, failed, seed);
+        if (failed || total != 65558) $fatal(1, "Status: FAIL");
+        $display("Status: PASS"); $finish;
     end
-
+    initial begin #1000000; $fatal(1, "Watchdog expired"); end
 endmodule
