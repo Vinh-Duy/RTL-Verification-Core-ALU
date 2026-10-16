@@ -11,3 +11,12 @@ adder_sim
 # === OS generated files ===
 # Bỏ qua file rác tự sinh của hệ điều hành macOS
 .DS_Store
+# Reproducible generated artifacts (original root waveforms remain untouched).
+/build/
+/results/
+__pycache__/
+*.pyc
+.venv/
+/work/
+transcript
+vsim.wlf
