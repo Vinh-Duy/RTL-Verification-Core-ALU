@@ -1,137 +1,218 @@
-# 8-bit ALU RTL Design & Advanced OOP Verification Testbench
+# RTL Design and Verification of an 8-bit ALU
 
-A professional hardware verification portfolio demonstrating the evolution from a basic combinational circuit to a full-scale **Arithmetic Logic Unit (ALU)**. The project showcases both **Flat Self-Checking** and **Advanced Object-Oriented Programming (OOP) Constrained Random Verification (CRV)** environments implemented in **SystemVerilog 2012**.
+**Independent Digital Hardware Engineering Project**
 
----
+## 1. Overview
 
-## Project Overview
+An unsigned, combinational eight-operation ALU with a reproducible open-source
+verification suite. This educational project retains its progression from a basic
+adder to flat SystemVerilog tests, class-based verification and functional coverage.
+The portable baseline uses Icarus Verilog and Python's standard library.
 
-This repository captures the progressive development of an ASIC verification environment. It starts from a foundational 8-bit adder and scales up to a multi-operation ALU. To prove verification competency, the project features two distinct testbench architectures:
+**The advanced OOP/native-covergroup examples require a capable SystemVerilog
+simulator and have NOT RUN in the current environment.** They are preserved and
+restructured, but their execution is not a prerequisite for portable verification.
 
-1. **Flat Self-Checking Testbench:** A traditional sequential approach using loops and dynamic scoreboard checking.
-2. **Standard OOP Architecture:** A production-grade environment utilizing SystemVerilog Classes, Mailboxes, Interfaces, and Virtual Interfaces to decouple stimulus generation, driving, and monitoring, completely eliminating race conditions.
+## 2. Motivation
 
-### Key Features
+The project explores arithmetic widths, simulation scheduling, trustworthy
+scoreboards and measurable testing. It is an independent undergraduate engineering
+project, not a tapeout verification platform. The separate
+[EDA routing project](https://github.com/Vinh-Duy/EDA_Routing_Algorithm) explores
+algorithms and experimental validation; the two repositories remain independent.
 
-* **Multi-operation ALU RTL:** Supports 8 opcodes including ADD, SUB, MUL, DIV (with zero-division protection), AND, OR, XOR, and SHL.
-* **Evolutionary Project Structure:** Clean separation of Design (`rtl/`) and Verification (`tb/`) files.
-* **Constrained Random Verification (CRV):** Intelligent randomization ensuring high edge-case coverage without illegal states (e.g., constraining denominator `b != 0` during division).
-* **Clockless Race-Condition Handling:** Implemented strategic delays (`#4` and `#1`) within the OOP Scoreboard to perfectly sync with the Driver, preventing simulation hang and data overriding.
+## 3. ALU Specification
 
----
+Inputs are unsigned 8-bit A/B and a 3-bit opcode; result is 16 bits. There is no
+clock or state. Full details, including X/Z behavior, are in the
+[specification](docs/ALU_SPECIFICATION.md). Explicit-width RTL preserves the original
+known-input behavior. The original and revised ALUs each passed an exhaustive
+known-input simulation against the documented model.
 
-## Directory Structure
+## 4. Supported Operations
+
+| Opcode | Name | Result |
+|---|---|---|
+| 000 | ADD | A+B; carry retained |
+| 001 | SUB | (A−B) mod 65536 |
+| 010 | MUL | Full 8×8 product |
+| 011 | DIV | Floor(A/B), or zero when B=0 |
+| 100 | AND | Zero-extended bitwise AND |
+| 101 | OR | Zero-extended bitwise OR |
+| 110 | XOR | Zero-extended bitwise XOR |
+| 111 | SHL | A shifted left by B[2:0], with a 16-bit result |
+
+## 5. Verification Architecture
+
+Python model and stimulus → vector file → sequential SV driver/checker → result
+CSV → Python result validation and custom coverage → JSON summaries.
+
+The bridge checks transaction IDs/counts, rejects unknown outputs, checks stable
+results, and returns failure through `$fatal` and the runner exit code. Simulation
+and subprocess watchdogs bound execution. A 1 ns settling interval permits
+zero-delay RTL evaluation; it does not represent measured hardware latency.
+
+The flat bench makes sequential self-checking easy to inspect. The OOP examples
+teach separation of generator, driver, monitor, scoreboard and coverage. Their
+bounded mailbox completion/acknowledgment path replaces independent `#4/#5` loops.
+See [advanced suite status and commands](docs/ADVANCED_SUITE.md).
+
+## 6. Directed and Random Testing
+
+Thirty-two literal known answers underpin a 116-transaction directed suite.
+It covers boundaries, division zero/remainder, subtraction wrap, full products,
+ignored shift bits, repeated inputs and changing opcodes. Random operands use a
+35% boundary-pool / 65% uniform mixture; opcodes cycle evenly through all eight.
+Seeds and counts are configurable and logged. Sixty metamorphic checks exercise
+DUT algebraic relationships. A separate bench checks ten selected X/Z cases.
+
+## 7. Functional Coverage
+
+The [142-bin plan](docs/COVERAGE_PLAN.md) measures opcodes, operand categories,
+relationships, arithmetic edges and useful crosses. Coverage samples only returned,
+checked, matching transactions. Reports list every uncovered bin. A dedicated
+closure phase exercises missing scenarios without changing the denominator.
+This is **custom functional coverage**, not code coverage or native covergroup
+coverage. The transaction pass rate and exhaustive input count are separate metrics.
+
+## 8. Verification Results
+
+<!-- measured-results:start -->
+| Executed check | Measured result |
+|---|---|
+| Directed ALU suite | 116 checked, 116 passed |
+| Standard closed suite | 1,333 checked, 1,333 passed; seed 2026 |
+| Custom functional coverage | 138/142 (97.18%) before → 142/142 (100.00%) after closure |
+| Exhaustive ALU | 524,288 checked, all passed; 24.183 s |
+| Adder example | 65,558 passed, including all 65,536 input pairs |
+| Verifier tests | 16 unit/integration tests passed; ADD and X-output mutants rejected |
+| Advanced OOP / GitHub CI | NOT RUN / NOT RUN |
+<!-- measured-results:end -->
+
+See [full measured results](docs/RESULTS.md), [technical report](docs/VERIFICATION_REPORT.md)
+and [machine-readable evidence](docs/evidence/final.json) for environments, runtimes,
+counts, negative tests, source hashes and limitations. Exhaustive simulation checks
+all 524,288 known-input combinations; it is not formal or physical verification.
+
+## 9. Repository Structure
 
 ```text
-.
-├── rtl/                        # Design Under Test (RTL Core)
-│   ├── adder_8bit.sv           # (Phase 0) Basic 8-bit Adder
-│   └── alu_8bit.sv             # (Phase 1) 8-bit ALU (8 Operations)
-│
-├── tb/                         # Verification Environment
-│   ├── tb_adder_8bit.sv        # (Phase 0) Basic Testbench
-│   ├── tb_alu_flat.sv          # (Phase 1) Flat Self-Checking Testbench
-│   ├── tb_alu_oop.sv           # (Phase 2) Pure OOP Testbench Architecture (20 TCs)
-│   └── tb_alu_coverage.sv      # (Phase 3) OOP + Functional Coverage Testbench (200 TCs)
-│
-├── .gitignore                  # Excludes simulation binaries and VCD files
-└── README.md                   # Documentation
+rtl/                 ALU and original educational adder
+tb/                 flat, vector, X/Z and shared OOP benches
+verification/       Python model, stimuli, coverage, runner and literal answers
+tests/              oracle, coverage and failure-propagation tests
+scripts/            measured-result exporter
+docs/               audit, specification, coverage plan and reports
+docs/evidence/      compact executed evidence snapshots
+.github/workflows/  portable CI configuration
+results/            generated logs, CSV, JSON, waveforms and isolated mutants (ignored)
 ```
 
----
+## 10. Installation
 
-## Prerequisites & Toolchains
+Use Python >=3.10,<3.15 and Icarus Verilog (locally tested with 13.0; CI targets the
+Ubuntu-packaged version). There are no pip dependencies; `requirements.txt` records
+this intentionally. Verilator is optional locally and installed in CI for lint.
 
-* **For Flat Testbench (Local Simulation):** Icarus Verilog (`iverilog` v12.0+) and GTKWave.
-* **For OOP Testbench (Advanced SV Features):** Commercial simulators (e.g., Aldec Riviera-PRO, Siemens Questa, Synopsys VCS, ModelSim). Highly recommended to run via EDA Playground as open-source `iverilog` has limited OOP support.
+```sh
+# macOS, with Homebrew already installed
+brew install icarus-verilog verilator python@3.12
 
----
-
-## How to Compile and Run
-
-### Local Simulation (macOS / Linux / Windows) - Flat Testbench
-For the sequential Flat Testbench, you can use the open-source **Icarus Verilog** toolchain across any operating system. Run these commands in your terminal/command prompt:
-
-```bash
-# 1. Compile with SystemVerilog 2012 support
-iverilog -g2012 -o alu_flat_sim rtl/alu_8bit.sv tb/tb_alu_flat.sv
-
-# 2. Execute the simulation
-vvp alu_flat_sim
-
-# 3. Open waveform (Ensure GTKWave is installed)
-gtkwave alu_flat_waveform.vcd
+# Ubuntu / Debian
+sudo apt-get update
+sudo apt-get install -y iverilog verilator python3 make
 ```
 
-### Windows (Local) - OOP Testbench
-Since open-source `iverilog` lacks full support for SystemVerilog OOP, Windows users with commercial simulators like **ModelSim** or **QuestaSim** (often provided via Intel Quartus or university licenses) can run the OOP Testbench using the following TCL commands in the simulator transcript or command prompt:
+For the versioned Homebrew Python, use `make PYTHON=python3.12 regression`, or
+activate a virtual environment created with `python3.12 -m venv .venv`.
+The [Homebrew Python 3.12 formula](https://formulae.brew.sh/formula/python@3.12)
+provides the versioned executable. An existing supported Python also works.
 
-```tcl
-# 1. Create a working library
-vlib work
+GTKWave is optional. Install a distribution compatible with your OS using the
+[GTKWave project](https://gtkwave.github.io/gtkwave/). Its executable is present on
+the development machine; interactive viewing was not validated here. cocotb was
+considered but is not required for this small file-vector flow. A missing Icarus
+executable produces an explicit error and nonzero status.
 
-# 2. Compile Design and OOP Testbench
-vlog -sv rtl/alu_8bit.sv tb/tb_alu_oop.sv
+## 11. Quick Start
 
-# 3. Run Simulation (Command Line Interface mode)
-vsim -c tb_alu_oop -do "run -all; quit"
+```sh
+make test             # Python checks, directed ALU, adder, flat and X/Z examples
+make regression       # lint/elaboration, random, coverage, properties, mutations, replay
 ```
 
-### Cloud Simulation (Cross-Platform) - OOP Testbench
-If you do not have a commercial simulator installed locally, it is highly recommended to run the OOP Testbench via [EDA Playground](https://www.edaplayground.com/).
+## 12. Running Regression Tests
 
-1. Upload both `rtl/alu_8bit.sv` and `tb/tb_alu_oop.sv`.
-2. Select a commercial simulator (e.g., Aldec Riviera-PRO or Siemens Questa).
-3. Check "Open EPWave after run" to visualize the `.vcd` waveform output.
-
----
-
-## Expected Simulation Outputs
-
-Upon successful execution, the automated scoreboard will generate terminal logs similar to this:
-
-```text
-
-[START]
-
-[PASS] ADD | a= 33, b=  5 | Result=   38
-[PASS] SUB | a= 10, b=  4 | Result=    6
-[PASS] MUL | a= 31, b= 16 | Result=  496
-[PASS] DIV | a= 18, b=  1 | Result=   18
-[PASS] AND | a= 30, b= 11 | Result=   10
-[PASS] OR  | a= 39, b= 13 | Result=   47
-[PASS] XOR | a= 49, b= 16 | Result=   33
-[PASS] SHL | a= 50, b=  8 | Result=   50
-...
-
-[SUCCESS]
-
+```sh
+make lint
+make test-random SEED=2026 COUNT=100       # smoke random
+make test-random SEED=2026 COUNT=1000      # standard random
+make test-random SEED=2026 COUNT=10000     # extended random
+make coverage SEED=2026 COUNT=1000
+make mutation
+make exhaustive                          # all 524,288 known-input ALU combinations
+make regression SEED=2027 COUNT=1000 TIMEOUT=300
+make clean                               # removes only generated build/ and results/
 ```
 
----
+Make targets call `python3 -m verification.run`; `PYTHON` can override the interpreter.
+Reports are under `results/<target>/`, with per-simulation `test_results.csv`,
+`simulator.log`, `coverage_summary.json`, `uncovered_bins.txt` and
+`regression_summary.json`. The regression reports real counts and verifies identical
+stimulus/results for a repeated seed. Mutation logs intentionally show failed DUT
+runs; the mutation test passes only when those faulty DUTs are rejected.
 
-## 🚀 Phase 3: Functional Coverage & High-Volume CRV (200 Test Cases)
+`make lint` uses Icarus warning-enabled elaboration and also runs Verilator when
+available. It clearly reports unavailable Verilator; Icarus elaboration is not
+represented as an equivalent lint tool. CI fails on either tool's failure and
+uploads evidence even if a later test fails. GitHub execution remains unverified
+until the workflow actually runs. See [measured results](docs/RESULTS.md) for exact
+commands to regenerate the evidence snapshot and tables.
 
-Moving beyond traditional Pass/Fail testing, this phase implements **SystemVerilog Functional Coverage** to statistically prove that the verification environment has thoroughly exercised the ALU design. The transaction volume was heavily scaled from 20 to **200 randomized test cases**.
+## 13. Waveform Visualization
 
-### ✨ Key Coverage Features Implemented:
-* **Covergroups & Coverpoints:** Defined dedicated covergroups within the OOP architecture to sample transactions dynamically.
-* **Opcode Coverage:** Ensured 100% hit rate across all 8 arithmetic and logical operations.
-* **Operand Boundary Tracking:** Created specific coverpoint bins to capture critical boundary values for input `a`, including:
-  * `MIN` values (`8'h00`)
-  * `MAX` values (`8'hFF`)
-  * `Typical` mid-range values (`1` to `254`)
-* **Simulation Output:** At the end of the simulation, the testbench reports the overall coverage percentage, ensuring the design is well-tested.
+```sh
+make waveform
+gtkwave results/waveform/directed/waveform.vcd
+```
 
----
+This real simulation includes operand/opcode changes, carry, subtraction wrap,
+full-width multiplication and shift boundaries. Add A, B, opcode and result, set
+hexadecimal/unsigned radix and zoom to the first 64 ns for literal known answers.
+Capture an image manually from GTKWave if needed; no screenshot is fabricated.
+VCD files and simulation executables are ignored. Exhaustive runs omit VCD by default.
 
-## Roadmap & Milestones
+The standalone flat example is also available:
 
-* [x] **Phase 1: ALU Expansion:** Upgraded the 8-bit Adder into a full-scale ALU.
-* [x] **Phase 2: Object-Oriented Architecture:** Restructured the testbench into modular SV OOP components (Generator, Driver, Scoreboard, Environment).
-* [x] **Phase 3: Functional Coverage:** Implemented SystemVerilog covergroups/coverpoints to track functional coverage across 200 randomized test cases.
-* [ ] **Phase 4: UVM Integration:** Migrate the current custom OOP architecture into the industry-standard Universal Verification Methodology (UVM) framework.
+```sh
+mkdir -p build results/manual
+iverilog -g2012 -Wall -Itb -s tb_alu_flat -o build/alu_flat rtl/alu_8bit.sv tb/tb_alu_flat.sv
+vvp build/alu_flat +SEED=2026 +COUNT=100 +WAVE=results/manual/alu.vcd
+```
 
----
+## 14. Technical Documentation
 
-> *Developed as a part of a Hardware Verification Portfolio for the Advanced IC Design Engineering track.*
+- [Initial audit and corrections](docs/AUDIT.md)
+- [ALU specification](docs/ALU_SPECIFICATION.md)
+- [Coverage plan](docs/COVERAGE_PLAN.md)
+- [Verification report](docs/VERIFICATION_REPORT.md)
+- [Measured results](docs/RESULTS.md)
+- [Advanced suite](docs/ADVANCED_SUITE.md)
+- [Application summary and interview preparation](docs/PROJECT_SUMMARY.md)
+
+Tool references: [Icarus command-line options](https://steveicarus.github.io/iverilog/usage/command_line_flags.html)
+and [Verilator lint options](https://verilator.org/guide/latest/exe_verilator.html).
+
+## 15. Limitations
+
+Advanced OOP/native covergroups and GitHub Actions have not run here. Verilator
+is absent locally. No synthesis, physical timing, formal proof or code coverage is
+claimed. X/Z tests cover selected semantics, not all four-state combinations.
+Measured evidence applies to the recorded sources and input contract only.
+
+## 16. Future Work
+
+Run and validate the advanced environment on a suitable simulator, execute CI,
+and consider a separately scoped synthesis/timing experiment. Keep the design
+small and understandable; UVM migration and extra hardware blocks are outside
+this revision's scope.
