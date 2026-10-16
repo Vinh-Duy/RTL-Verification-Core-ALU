@@ -1,0 +1,127 @@
+{
+  "retrieved_at_utc": "2026-10-16T17:40:15.076939+00:00",
+  "sources": {
+    "run": "https://api.github.com/repos/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/38939887081",
+    "jobs": "https://api.github.com/repos/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/38939887081/jobs"
+  },
+  "evidence_scope": "GitHub API run/job/step metadata; logs and artifact contents not downloaded or independently inspected",
+  "run": {
+    "id": 38939887081,
+    "run_number": 1,
+    "run_attempt": 1,
+    "name": "RTL verification",
+    "head_sha": "cdc8e24494e5237448a241f4361e26cc58b4f33d",
+    "head_branch": "main",
+    "event": "push",
+    "status": "completed",
+    "conclusion": "success",
+    "html_url": "https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/38939887081",
+    "created_at": "2026-10-16T17:28:04Z",
+    "updated_at": "2026-10-16T17:28:36Z"
+  },
+  "jobs": [
+    {
+      "id": 117104575244,
+      "name": "portable",
+      "head_sha": "cdc8e24494e5237448a241f4361e26cc58b4f33d",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/38939887081/job/117104575244",
+      "started_at": "2026-10-16T17:28:08Z",
+      "completed_at": "2026-10-16T17:28:35Z",
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-16T17:28:09Z",
+          "completed_at": "2026-10-16T17:28:10Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-16T17:28:10Z",
+          "completed_at": "2026-10-16T17:28:10Z"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-16T17:28:10Z",
+          "completed_at": "2026-10-16T17:28:11Z"
+        },
+        {
+          "name": "Install simulators",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-16T17:28:11Z",
+          "completed_at": "2026-10-16T17:28:20Z"
+        },
+        {
+          "name": "Unit tests, lint, directed, random, coverage and negative tests",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-16T17:28:20Z",
+          "completed_at": "2026-10-16T17:28:22Z"
+        },
+        {
+          "name": "Exhaustive finite-input simulation",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-16T17:28:22Z",
+          "completed_at": "2026-10-16T17:28:30Z"
+        },
+        {
+          "name": "Generate representative waveform",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-16T17:28:30Z",
+          "completed_at": "2026-10-16T17:28:30Z"
+        },
+        {
+          "name": "Preserve evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-16T17:28:30Z",
+          "completed_at": "2026-10-16T17:28:33Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-16T17:28:33Z",
+          "completed_at": "2026-10-16T17:28:33Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16,
+          "started_at": "2026-10-16T17:28:33Z",
+          "completed_at": "2026-10-16T17:28:33Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17,
+          "started_at": "2026-10-16T17:28:33Z",
+          "completed_at": "2026-10-16T17:28:33Z"
+        }
+      ]
+    }
+  ]
+}
