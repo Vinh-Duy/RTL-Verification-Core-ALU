@@ -1,0 +1,7 @@
+$ vvp /Users/vinhduy/Desktop/Verification_Adder/results/regression/wrong_add/simulation.vvp +VECTORS=/Users/vinhduy/Desktop/Verification_Adder/results/regression/wrong_add/vectors.txt +OUTPUT=/Users/vinhduy/Desktop/Verification_Adder/results/regression/wrong_add/test_results.csv +COUNT=32 +SEED=2026
+MISMATCH id=0 seed=2026 op=0 a=0 b=0 expected=0000 actual=0001
+MISMATCH id=1 seed=2026 op=0 a=255 b=1 expected=0100 actual=0101
+MISMATCH id=2 seed=2026 op=0 a=255 b=255 expected=01fe actual=01ff
+VERIFICATION SUMMARY total=32 passed=29 failed=3 seed=2026
+FATAL: /Users/vinhduy/Desktop/Verification_Adder/tb/tb_alu_vectors.sv:55: Status: FAIL (expected 32 transactions)
+       Time: 64000  Scope: tb_alu_vectors

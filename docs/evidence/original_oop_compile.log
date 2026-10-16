@@ -1,0 +1,14 @@
+tb/tb_alu_oop.sv:15: sorry: Constraint declarations not supported.
+tb/tb_alu_oop.sv:22: syntax error
+tb/tb_alu_oop.sv:22: error: mailbox doesn't name a type.
+tb/tb_alu_oop.sv:25: syntax error
+tb/tb_alu_oop.sv:1: error: Error in task/function port item after port name mailbox.
+tb/tb_alu_oop.sv:25: syntax error
+tb/tb_alu_oop.sv:1: error: I give up on this class constructor declaration.
+tb/tb_alu_oop.sv:42: syntax error
+tb/tb_alu_oop.sv:42: error: Invalid class item.
+tb/tb_alu_oop.sv:43: syntax error
+tb/tb_alu_oop.sv:43: error: mailbox doesn't name a type.
+Assertion failed: (current_function==0), function VLparse, file parse.y, line 1006.
+sh: line 1: 16405 Done                    /usr/local/Cellar/icarus-verilog/13.0/lib/ivl/ivlpp -L -F"/var/folders/jp/3k9m361d747f5kxw4svsdrbc0000gq/T//ivrlg2106e5dbe" -f"/var/folders/jp/3k9m361d747f5kxw4svsdrbc0000gq/T//ivrlg106e5dbe" -p"/var/folders/jp/3k9m361d747f5kxw4svsdrbc0000gq/T//ivrli106e5dbe"
+     16406 Abort trap: 6           | /usr/local/Cellar/icarus-verilog/13.0/lib/ivl/ivl -C"/var/folders/jp/3k9m361d747f5kxw4svsdrbc0000gq/T//ivrlh106e5dbe" -C"/usr/local/Cellar/icarus-verilog/13.0/lib/ivl/vvp.conf" -- -

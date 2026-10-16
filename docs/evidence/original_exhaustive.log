@@ -1,0 +1,4 @@
+$ vvp /Users/vinhduy/Desktop/Verification_Adder/results/original_exhaustive/exhaustive/simulation.vvp +VECTORS=/Users/vinhduy/Desktop/Verification_Adder/results/original_exhaustive/exhaustive/vectors.txt +OUTPUT=/Users/vinhduy/Desktop/Verification_Adder/results/original_exhaustive/exhaustive/test_results.csv +COUNT=524288 +SEED=2026
+VERIFICATION SUMMARY total=524288 passed=524288 failed=0 seed=2026
+Status: PASS
+/Users/vinhduy/Desktop/Verification_Adder/tb/tb_alu_vectors.sv:56: $finish called at 1048576000 (1ps)

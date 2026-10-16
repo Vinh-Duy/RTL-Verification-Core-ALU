@@ -1,0 +1,4 @@
+$ vvp /Users/vinhduy/Desktop/Verification_Adder/results/regression/clean_after_mutation/simulation.vvp +VECTORS=/Users/vinhduy/Desktop/Verification_Adder/results/regression/clean_after_mutation/vectors.txt +OUTPUT=/Users/vinhduy/Desktop/Verification_Adder/results/regression/clean_after_mutation/test_results.csv +COUNT=32 +SEED=2026
+VERIFICATION SUMMARY total=32 passed=32 failed=0 seed=2026
+Status: PASS
+/Users/vinhduy/Desktop/Verification_Adder/tb/tb_alu_vectors.sv:57: $finish called at 64000 (1ps)
