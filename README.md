@@ -78,7 +78,7 @@ coverage. The transaction pass rate and exhaustive input count are separate metr
 ## 8. Verification Results
 
 <!-- measured-results:start -->
-| Executed check | Measured result |
+| Local executed check | Local measured result |
 |---|---|
 | Directed ALU suite | 116 checked, 116 passed |
 | Standard closed suite | 1,333 checked, 1,333 passed; seed 2026 |
@@ -86,8 +86,15 @@ coverage. The transaction pass rate and exhaustive input count are separate metr
 | Exhaustive ALU | 524,288 checked, all passed; 24.183 s |
 | Adder example | 65,558 passed, including all 65,536 input pairs |
 | Verifier tests | 16 unit/integration tests passed; ADD and X-output mutants rejected |
-| Advanced OOP / GitHub CI | NOT RUN / NOT RUN |
+| Advanced OOP / native covergroups | NOT RUN |
 <!-- measured-results:end -->
+
+GitHub Actions [RTL verification #1](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/38939887081) independently completed successfully
+for `cdc8e24`. The Ubuntu portable job passed its configured regression (including
+Verilator RTL lint), exhaustive simulation, waveform generation and evidence-upload
+steps. This CI status is separate from the local measurements above. See the
+[CI evidence scope](docs/RESULTS.md#github-actions-verification-separate-from-local-experiments)
+for the verified metadata and limits; advanced OOP/native covergroups remain NOT RUN.
 
 See [full measured results](docs/RESULTS.md), [technical report](docs/VERIFICATION_REPORT.md)
 and [machine-readable evidence](docs/evidence/final.json) for environments, runtimes,
@@ -165,8 +172,8 @@ runs; the mutation test passes only when those faulty DUTs are rejected.
 `make lint` uses Icarus warning-enabled elaboration and also runs Verilator when
 available. It clearly reports unavailable Verilator; Icarus elaboration is not
 represented as an equivalent lint tool. CI fails on either tool's failure and
-uploads evidence even if a later test fails. GitHub execution remains unverified
-until the workflow actually runs. See [measured results](docs/RESULTS.md) for exact
+uploads evidence even if a later test fails. Run #1 at `cdc8e24` succeeded;
+subsequent revisions require their own CI result. See [measured results](docs/RESULTS.md) for exact
 commands to regenerate the evidence snapshot and tables.
 
 ## 13. Waveform Visualization
@@ -205,14 +212,17 @@ and [Verilator lint options](https://verilator.org/guide/latest/exe_verilator.ht
 
 ## 15. Limitations
 
-Advanced OOP/native covergroups and GitHub Actions have not run here. Verilator
-is absent locally. No synthesis, physical timing, formal proof or code coverage is
+Advanced OOP/native covergroups have not been executed on a suitable simulator.
+Verilator was absent from the original local experiment; the portable GitHub
+Actions run passed with Verilator installed. Detailed CI logs/artifact measurements
+were not independently inspected in this documentation audit. No synthesis, physical timing, formal proof or code coverage is
 claimed. X/Z tests cover selected semantics, not all four-state combinations.
 Measured evidence applies to the recorded sources and input contract only.
 
 ## 16. Future Work
 
-Run and validate the advanced environment on a suitable simulator, execute CI,
-and consider a separately scoped synthesis/timing experiment. Keep the design
+Run and validate the advanced environment on a suitable simulator, retain CI
+checks for future revisions, update deprecated action runtimes, and consider a
+separately scoped synthesis/timing experiment. Keep the design
 small and understandable; UVM migration and extra hardware blocks are outside
 this revision's scope.

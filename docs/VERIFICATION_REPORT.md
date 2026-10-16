@@ -126,14 +126,19 @@ The actual environment, timestamps, source hashes, commands and per-run runtimes
 are exported to [evidence/final.json](evidence/final.json). The final local toolchain
 is Icarus 13.0 and Python 3.10.11 on macOS 13.7.8, x86-64. No external Python
 packages are required. Icarus warning-enabled elaboration executes locally;
-Verilator is absent and therefore explicitly NOT RUN. GitHub Actions installs
-Icarus and Verilator on Ubuntu and is configured to run the portable suite, but
-that remote workflow has not been executed in this task.
+Verilator was absent and remains NOT RUN for that local experiment. Separately,
+[GitHub Actions run #1](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/38939887081) succeeded for `cdc8e24` on an Ubuntu 24.04 job
+configured for Python 3.12. GitHub API metadata confirms successful simulator
+installation, regression, exhaustive simulation, waveform generation and artifact
+upload. The workflow installs Icarus and Verilator; the regression includes RTL
+lint. This establishes the configured portable CI result, not advanced-suite
+execution. Exact CI tool versions and numerical reports were not independently
+inspected; see the [CI evidence scope](RESULTS.md#github-actions-verification-separate-from-local-experiments).
 
 ## 15. Results
 
 <!-- measured-results:start -->
-| Executed check | Measured result |
+| Local executed check | Local measured result |
 |---|---|
 | Directed ALU suite | 116 checked, 116 passed |
 | Standard closed suite | 1,333 checked, 1,333 passed; seed 2026 |
@@ -141,14 +146,16 @@ that remote workflow has not been executed in this task.
 | Exhaustive ALU | 524,288 checked, all passed; 24.183 s |
 | Adder example | 65,558 passed, including all 65,536 input pairs |
 | Verifier tests | 16 unit/integration tests passed; ADD and X-output mutants rejected |
-| Advanced OOP / GitHub CI | NOT RUN / NOT RUN |
+| Advanced OOP / native covergroups | NOT RUN |
 <!-- measured-results:end -->
 
-[RESULTS.md](RESULTS.md) lists every retained final configuration with simulator,
+[RESULTS.md](RESULTS.md) lists every retained local configuration with simulator,
 OS, seed, checked/pass/fail counts, coverage, completion and measured runtime.
 Raw CSV, simulator logs and coverage JSON are under ignored `results/`; compact
 measured snapshots and selected logs remain under `docs/evidence/`. Early
-exploratory measurements are separately retained in `exploratory.json`.
+exploratory measurements are separately retained in `exploratory.json`. The new
+`github-actions-1.json` record contains GitHub run/job/step metadata only. No local
+counts, runtimes or coverage results have been replaced with CI values.
 
 The original ALU at Git revision `32430ca` also passed all 524,288 known-input
 combinations against this specification. Its actual log and report are archived
@@ -168,8 +175,11 @@ changes clarify widths and signedness; no functional arithmetic bug was establis
 
 ## 17. Limitations
 
-Advanced OOP and native covergroup execution, Verilator lint, remote CI and manual
-GTKWave viewing remain unexecuted locally. No synthesis, gate-level, physical timing,
+Advanced OOP and native covergroups remain unexecuted on a capable simulator.
+Verilator lint remains unexecuted in the original local experiment, although the
+portable CI run passed with Verilator installed. Manual GTKWave viewing remains
+unexecuted, and detailed CI logs and artifact contents were not independently
+inspected in this audit. No synthesis, gate-level, physical timing,
 code coverage or formal proof has been performed. Four-state testing is targeted,
 not exhaustive. Delay-based settling assumes the current zero-delay combinational
 DUT. Functional bin selection is intentionally limited, not a universal completeness
@@ -179,7 +189,9 @@ the testbench enforces its known-input contract.
 ## 18. Future Work
 
 Execute and negatively validate the advanced suite on a capable simulator; run
-Verilator lint and GitHub CI; consider synthesis and timing experiments with a
+Verilator locally when available, retain CI checks for subsequent commits, and
+update the action versions associated with the non-failing runtime warning;
+consider synthesis and timing experiments with a
 specified target technology; and extend four-state tests if the input contract
 changes. Keep each addition tied to a measurable question. UVM migration and new
 hardware blocks are outside the current scope.

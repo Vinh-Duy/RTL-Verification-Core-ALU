@@ -43,7 +43,7 @@ which required deliberate coverage-driven stimulus.
 
 ## D. Actual evidence
 
-Icarus 13.0 executed 116 directed ALU transactions, a closed standard run of 1,333
+In the original local macOS experiment, Icarus 13.0 executed 116 directed ALU transactions, a closed standard run of 1,333
 transactions, the complete 524,288 known-input ALU space, and the adder's 65,536
 pairs plus 22 original-style examples. All clean checks passed. Custom functional
 coverage increased from 138/142 bins to 142/142. Both ADD mutations produced three
@@ -52,12 +52,19 @@ unit/integration tests passed. Exact logs, runtimes and provenance are linked in
 [RESULTS.md](RESULTS.md). Counts describe distinct experiments and must not be
 added together as a unique-input claim.
 
+Separately, [GitHub Actions run #1](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/38939887081) succeeded for `cdc8e24`. GitHub metadata
+confirms successful portable regression, exhaustive simulation, waveform and
+artifact-upload steps on the Ubuntu job. This is CI execution evidence; the local
+counts and custom functional coverage measurements above remain unchanged.
+Detailed CI logs and artifact measurements were not independently inspected.
+
 ## E. Limitations
 
 This is a finite combinational simulation study. It does not establish physical
 timing, fabrication readiness, formal proof or a complete ASIC verification flow.
 Native covergroups and the repaired OOP environment have not executed in a capable
-simulator. GitHub CI is configured but has not run remotely. No faculty supervision,
+simulator; the successful GitHub run covers only the portable suite. No synthesis,
+code coverage or exhaustive X/Z verification is claimed. No faculty supervision,
 publication, industry employment or award is implied.
 
 ## F. Suggested resume description
