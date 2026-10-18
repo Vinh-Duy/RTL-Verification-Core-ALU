@@ -1,0 +1,26 @@
+{
+  "checkout": {
+    "selected_major": "v7",
+    "latest_stable_release": "v7.0.1",
+    "release_url": "https://github.com/actions/checkout/releases/tag/v7.0.1",
+    "published_at": "2026-07-20T15:10:05Z",
+    "manifest_url": "https://github.com/actions/checkout/blob/v7.0.1/action.yml",
+    "manifest_runtime": "node24"
+  },
+  "setup-python": {
+    "selected_major": "v7",
+    "latest_stable_release": "v7.0.0",
+    "release_url": "https://github.com/actions/setup-python/releases/tag/v7.0.0",
+    "published_at": "2026-07-20T03:15:01Z",
+    "manifest_url": "https://github.com/actions/setup-python/blob/v7.0.0/action.yml",
+    "manifest_runtime": "node24"
+  },
+  "upload-artifact": {
+    "selected_major": "v7",
+    "latest_stable_release": "v7.0.2",
+    "release_url": "https://github.com/actions/upload-artifact/releases/tag/v7.0.2",
+    "published_at": "2026-10-07T10:08:14Z",
+    "manifest_url": "https://github.com/actions/upload-artifact/blob/v7.0.2/action.yml",
+    "manifest_runtime": "node24"
+  }
+}
