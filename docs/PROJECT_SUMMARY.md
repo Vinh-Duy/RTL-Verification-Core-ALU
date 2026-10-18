@@ -1,107 +1,102 @@
 # Project summary for application preparation
 
-## A. Short English summary (130 words)
+## A. Short English summary (115 words)
 
-This independent digital hardware project develops and verifies an unsigned
-8-bit arithmetic logic unit with eight operations and a 16-bit output. It retains
-an earlier adder and compares simple sequential testing with an educational
-object-oriented SystemVerilog environment. The executable baseline combines Icarus
-Verilog with a Python integer reference model, manually derived corner cases,
-reproducible random inputs, and a defined functional coverage plan. Verification
-includes explicit failure counters, unknown-value rejection, transaction-count
-checks, metamorphic properties, and isolated faulty designs that test the checker
-itself. Exhaustive simulation checked all 524,288 known-input ALU combinations
-successfully. The work illustrates how arithmetic width, simulator scheduling,
-and trustworthy failure reporting affect engineering conclusions. Advanced
-object-oriented simulation, physical timing, and synthesis remain outside the
-measured results. Documentation records commands, actual evidence, and limitations
-to make the experiments reproducible.
+This independent project implements an unsigned 8-bit arithmetic logic unit with
+eight operations and a 16-bit result. It was developed to understand digital
+arithmetic and how verification can distinguish correct behavior from misleading
+test output. The portable environment combines SystemVerilog, Icarus Verilog and
+an independent Python reference model. Directed cases, reproducible random inputs,
+metamorphic checks and isolated faulty designs test both the ALU and its checker.
+Local experiments checked all 524,288 known binary input combinations and reached
+all 142 bins in a defined custom functional coverage plan. Public CI runs provide
+separate evidence of reproducibility. The project retains earlier adder and
+object-oriented examples, while clearly identifying unexecuted advanced simulation
+and the limits of functional testing.
 
-## B. Demonstrable technical work
+## B. Four implementation highlights
 
-- Defined unsigned arithmetic semantics, including 16-bit subtraction wrap,
-  zero-divisor behavior and low-three-bit shift amounts; clarified RTL widths.
-- Built and executed a portable SV/Python checker with transaction IDs, counters,
-  watchdogs, unknown rejection and nonzero failure exits.
-- Executed literal directed cases, deterministic random traffic and DUT algebraic
-  checks, with reproducible seeds and machine-readable results.
-- Measured 142 defined functional bins and closed observed gaps using directed
-  inputs, while retaining the original coverage denominator.
-- Executed isolated ADD/X-output mutations and a faulty-XOR integration test;
-  checked all known-input ALU combinations and all adder operand pairs.
+- Specified unsigned arithmetic widths, modular subtraction, zero-divisor behavior
+  and masked shift amounts, with explicit-width synthesizable RTL.
+- Built a portable checker using an independent integer oracle, literal answers,
+  transaction IDs, unknown-value rejection and nonzero failure exits.
+- Implemented reproducible random stimulus, executable algebraic properties and
+  a 142-bin custom functional coverage plan with directed closure.
+- Validated the checker through isolated RTL mutations and negative tests, and
+  executed every known binary ALU combination and every adder input pair.
 
-## C. Engineering challenges
+## C. Verification methodology and challenges
 
-The main challenge was making a reported pass trustworthy. The original class
-bench used independent delays and live interface reads; it lacked transaction
-identity and could report success after a mismatch. The portable suite now makes
-each executed comparison visible and checks that no transaction was lost. Arithmetic
-width was another challenge: a 16-bit subtraction result differs from an 8-bit
-wrapped result, and an 8-bit operand does not imply an 8-bit expression in every
-SystemVerilog context. Random traffic also left reachable shift bins untested,
-which required deliberate coverage-driven stimulus.
+Python generates inputs and expected values; the SV bridge drives the DUT, allows
+combinational evaluation, checks knownness and stability, and returns identified
+results. Python checks ordering and comparisons before collecting coverage.
+Manual expected values and DUT properties provide checks beyond oracle agreement.
+The main challenges were defining arithmetic widths precisely, ensuring that a
+mismatch reaches the process exit status, and closing scenarios that random traffic
+missed. Explicit completion and snapshots are used in the educational OOP design,
+but that environment still requires execution on a capable simulator.
 
-## D. Actual evidence
+## D. Actual measured evidence
 
-In the original local macOS experiment, Icarus 13.0 executed 116 directed ALU transactions, a closed standard run of 1,333
-transactions, the complete 524,288 known-input ALU space, and the adder's 65,536
-pairs plus 22 original-style examples. All clean checks passed. Custom functional
-coverage increased from 138/142 bins to 142/142. Both ADD mutations produced three
-mismatches and simulator exit code 1; clean RTL passed afterward. Sixteen Python
-unit/integration tests passed. Exact logs, runtimes and provenance are linked in
-[RESULTS.md](RESULTS.md). Counts describe distinct experiments and must not be
-added together as a unique-input claim.
+The original local record includes 116/116 directed checks, 1,333/1,333 checks in
+the closed standard suite, 142/142 custom functional bins, 524,288/524,288 exhaustive
+ALU combinations and 16 passing unit/integration tests. Those historical values
+and runtimes remain unchanged in [RESULTS.md](RESULTS.md).
 
-Separately, [GitHub Actions run #1](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/38939887081) succeeded for `cdc8e24`. GitHub metadata
-confirms successful portable regression, exhaustive simulation, waveform and
-artifact-upload steps on the Ubuntu job. This is CI execution evidence; the local
-counts and custom functional coverage measurements above remain unchanged.
-Detailed CI logs and artifact measurements were not independently inspected.
+The [fresh final review](FINAL_REVIEW.md) independently reran the required commands
+at base commit `1621da9`, confirmed the same source hashes and reproduced these
+pass counts and bin hits. Both ADD mutants generated three mismatches with exit 1;
+clean RTL passed afterward. Counts from separate runs must not be combined into
+a unique-input claim. GitHub [run #1](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/38939887081)
+at `cdc8e24` and [run #2](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/38943467205)
+at `1621da9` succeeded for the portable workflow. CI status is distinct from the
+local numerical measurements; detailed CI artifacts were not independently inspected.
 
 ## E. Limitations
 
-This is a finite combinational simulation study. It does not establish physical
-timing, fabrication readiness, formal proof or a complete ASIC verification flow.
-Native covergroups and the repaired OOP environment have not executed in a capable
-simulator; the successful GitHub run covers only the portable suite. No synthesis,
-code coverage or exhaustive X/Z verification is claimed. No faculty supervision,
-publication, industry employment or award is implied.
+OOP/native covergroups remain **NOT RUN — Requires a compatible SystemVerilog
+simulator**. The new Node.js 24 action-major update has not yet run on GitHub.
+Local Verilator and interactive GTKWave viewing remain unexecuted. There is no
+synthesis, gate-level timing, physical implementation, code/native assertion
+coverage, formal proof or exhaustive X/Z verification result. No faculty
+supervision, publication or industry employment is implied.
 
-## F. Suggested resume description
+## F. Two-line CV description
 
-Developed an educational 8-bit ALU verification project using SystemVerilog,
-Icarus Verilog and Python; validated all 524,288 known-input combinations, measured
-a 142-bin functional coverage plan, and tested failure detection with isolated
-faulty RTL.
+Independent RTL project: designed an 8-bit ALU and implemented reproducible SystemVerilog/Python verification.<br>
+Checked 524,288 binary input combinations, measured 142 custom functional bins, and validated failure detection with isolated faulty RTL.
 
 ## G. Five interview questions and explanations
 
-1. **Why does 0−1 produce 65535 instead of 255?**
-   The specification uses unsigned 16-bit modular subtraction. Zero minus one is
-   −1 mathematically; modulo 65536 it is 65535 (0xffff). An eight-bit operation
-   would instead yield 255. Explain the chosen width before discussing overflow.
+1. **Why does arithmetic width matter?**
+   The output width defines the arithmetic representation. ADD needs nine bits to
+   retain 255+255. Under the specified 16-bit subtraction, 0−1 wraps to 65535
+   (0xffff), not the eight-bit value 255. MUL and SHL must retain bits above bit 7;
+   SHL deliberately uses only the low three bits of B.
 
-2. **Why is a one-nanosecond delay different from transaction synchronization?**
-   The delay lets zero-delay combinational logic settle in simulation. It says
-   nothing about which transaction a separate concurrent process observes. In the
-   repaired OOP design, completion tokens, snapshot objects and checked IDs provide
-   ordering, and the driver cannot overwrite inputs until acknowledgment. That
-   architecture still needs execution on a capable simulator before claiming it works.
+2. **How can a scoreboard produce a false pass?**
+   It might compare the wrong transaction, use an equally wrong reference model,
+   accept matching unknown values, or print an error without returning failure.
+   This checker uses ordered IDs, expected counts, knownness checks, snapshots
+   where needed, literal answers and nonzero failure exits. Settling time alone
+   does not establish transaction identity between concurrent processes.
 
-3. **How do you know the scoreboard can fail?**
-   Isolated source copies deliberately produce ADD+1, X on ADD, and OR instead of
-   XOR. The tests observe mismatches and require nonzero process returns. The clean
-   source then passes again. A log message alone would not be enough for automation.
+3. **How does mutation testing validate the checker?**
+   Isolated DUT copies change ADD to ADD+1 or an unknown result. The tests must
+   observe mismatches and fail; the mutation harness succeeds only when rejection
+   is demonstrated. A separate XOR-to-OR mutation checks the Python exit status.
+   Passing the clean DUT alone would not prove that the verifier can detect errors.
 
-4. **What does 100% coverage mean in this repository?**
-   It means every one of 142 explicitly defined reachable custom functional bins
-   received a successfully checked sample. It does not mean 100% code coverage,
-   complete X/Z testing or proof of all hardware behavior. The 10,000-vector random
-   run missed one bin, illustrating why a large count is not coverage evidence.
+4. **What does 142/142 functional coverage mean?**
+   Every reachable bin in the stated plan received a completed, successfully
+   checked transaction. The bins include opcodes, operand categories, relationships,
+   arithmetic edges and selected crosses. This is neither code coverage nor a
+   universal completeness claim. A large random test count can still miss a bin.
 
-5. **How independent is the oracle, and what does exhaustive simulation prove?**
-   The Python oracle computes from integer formulas without reading DUT output.
-   Literal answers and metamorphic properties reduce dependence on one implementation.
-   Exhaustive simulation checks every known binary input tuple for this particular
-   combinational module and specification. A wrong specification could still make
-   DUT and oracle agree; timing, synthesis and future revisions require other checks.
+5. **Why is exhaustive simulation not formal verification?**
+   This run enumerates every known binary input tuple for one finite combinational
+   implementation and compares observed results against a specification model.
+   It does not construct a formal proof, test every X/Z combination, validate
+   physical timing or establish that the chosen specification is correct.
+   Literal examples and independent properties reduce shared-model mistakes,
+   while synthesis and physical validation require separate experiments.
