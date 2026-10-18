@@ -4,10 +4,18 @@
 
 ## 1. Overview
 
-An unsigned, combinational eight-operation ALU with a reproducible open-source
-verification suite. This educational project retains its progression from a basic
-adder to flat SystemVerilog tests, class-based verification and functional coverage.
-The portable baseline uses Icarus Verilog and Python's standard library.
+An unsigned combinational 8-bit ALU with eight operations and a 16-bit result,
+developed to study arithmetic width, simulation scheduling and reliable checking.
+The implementation includes the RTL, an independent Python reference model,
+portable SystemVerilog tests, reproducible random stimulus and a custom functional
+coverage collector. Icarus Verilog and Python's standard library run the baseline.
+
+Recorded local evidence includes 116 directed transactions, all 524,288 known
+binary ALU input combinations, mutation rejection and 142/142 bins in the defined
+functional coverage plan. [Measured results](docs/RESULTS.md) distinguish the
+original experiments, successful GitHub runs and the fresh
+[final review](docs/FINAL_REVIEW.md). The adder and flat/OOP examples preserve the
+project's educational progression.
 
 **The advanced OOP/native-covergroup examples require a capable SystemVerilog
 simulator and have NOT RUN in the current environment.** They are preserved and
@@ -77,6 +85,9 @@ coverage. The transaction pass rate and exhaustive input count are separate metr
 
 ## 8. Verification Results
 
+The table preserves the original local measurements. Fresh checks and their source
+hashes are recorded separately in the [final review](docs/FINAL_REVIEW.md).
+
 <!-- measured-results:start -->
 | Local executed check | Local measured result |
 |---|---|
@@ -89,12 +100,11 @@ coverage. The transaction pass rate and exhaustive input count are separate metr
 | Advanced OOP / native covergroups | NOT RUN |
 <!-- measured-results:end -->
 
-GitHub Actions [RTL verification #1](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/38939887081) independently completed successfully
-for `cdc8e24`. The Ubuntu portable job passed its configured regression (including
-Verilator RTL lint), exhaustive simulation, waveform generation and evidence-upload
-steps. This CI status is separate from the local measurements above. See the
-[CI evidence scope](docs/RESULTS.md#github-actions-verification-separate-from-local-experiments)
-for the verified metadata and limits; advanced OOP/native covergroups remain NOT RUN.
+GitHub Actions [run #1](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/38939887081) passed for `cdc8e24`, and
+[run #2](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/38943467205) passed for `1621da9`. Both cover the portable regression,
+exhaustive simulation, waveform and artifact-upload steps. They do not execute the
+advanced OOP/native-covergroup suite. The pending action-version upgrade has **NOT
+RUN** on GitHub. See the [CI evidence scope](docs/RESULTS.md#github-actions-verification-separate-from-local-experiments).
 
 See [full measured results](docs/RESULTS.md), [technical report](docs/VERIFICATION_REPORT.md)
 and [machine-readable evidence](docs/evidence/final.json) for environments, runtimes,
@@ -172,8 +182,9 @@ runs; the mutation test passes only when those faulty DUTs are rejected.
 `make lint` uses Icarus warning-enabled elaboration and also runs Verilator when
 available. It clearly reports unavailable Verilator; Icarus elaboration is not
 represented as an equivalent lint tool. CI fails on either tool's failure and
-uploads evidence even if a later test fails. Run #1 at `cdc8e24` succeeded;
-subsequent revisions require their own CI result. See [measured results](docs/RESULTS.md) for exact
+uploads evidence even if a later test fails. Runs #1 (`cdc8e24`) and #2 (`1621da9`)
+succeeded with the previous action versions; the v7 action update still requires
+its own GitHub run. See [measured results](docs/RESULTS.md) for exact
 commands to regenerate the evidence snapshot and tables.
 
 ## 13. Waveform Visualization
@@ -206,6 +217,7 @@ vvp build/alu_flat +SEED=2026 +COUNT=100 +WAVE=results/manual/alu.vcd
 - [Measured results](docs/RESULTS.md)
 - [Advanced suite](docs/ADVANCED_SUITE.md)
 - [Application summary and interview preparation](docs/PROJECT_SUMMARY.md)
+- [Final engineering review and fresh execution](docs/FINAL_REVIEW.md)
 
 Tool references: [Icarus command-line options](https://steveicarus.github.io/iverilog/usage/command_line_flags.html)
 and [Verilator lint options](https://verilator.org/guide/latest/exe_verilator.html).
@@ -215,14 +227,15 @@ and [Verilator lint options](https://verilator.org/guide/latest/exe_verilator.ht
 Advanced OOP/native covergroups have not been executed on a suitable simulator.
 Verilator was absent from the original local experiment; the portable GitHub
 Actions run passed with Verilator installed. Detailed CI logs/artifact measurements
-were not independently inspected in this documentation audit. No synthesis, physical timing, formal proof or code coverage is
+were not independently inspected in this review. The upgraded workflow has not
+run on GitHub. No synthesis, physical timing, formal proof or code coverage is
 claimed. X/Z tests cover selected semantics, not all four-state combinations.
 Measured evidence applies to the recorded sources and input contract only.
 
 ## 16. Future Work
 
 Run and validate the advanced environment on a suitable simulator, retain CI
-checks for future revisions, update deprecated action runtimes, and consider a
+checks for future revisions, validate the pending action-runtime upgrade, and consider a
 separately scoped synthesis/timing experiment. Keep the design
 small and understandable; UVM migration and extra hardware blocks are outside
 this revision's scope.

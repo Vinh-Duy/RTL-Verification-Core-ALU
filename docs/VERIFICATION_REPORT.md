@@ -117,7 +117,7 @@ mismatches, return nonzero, and omit `Status: PASS`. The harness labels successf
 rejection as a passing **mutation test**. A clean known-answer run follows. A unit
 integration test independently replaces XOR with OR and verifies the outer Python
 process returns 1. Production RTL never needs to be restored because it is never
-changed. Missing dependencies, invalid counts, incomplete IDs, malformed inputs
+changed. Missing dependencies, invalid counts, incomplete IDs, malformed inputs,
 masked unknown inputs and unknown expected values are also tested failure paths.
 
 ## 14. Experimental Setup
@@ -127,7 +127,8 @@ are exported to [evidence/final.json](evidence/final.json). The final local tool
 is Icarus 13.0 and Python 3.10.11 on macOS 13.7.8, x86-64. No external Python
 packages are required. Icarus warning-enabled elaboration executes locally;
 Verilator was absent and remains NOT RUN for that local experiment. Separately,
-[GitHub Actions run #1](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/38939887081) succeeded for `cdc8e24` on an Ubuntu 24.04 job
+[GitHub Actions run #1](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/38939887081) succeeded for `cdc8e24`, and
+[run #2](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/38943467205) succeeded for `1621da9`, each on an Ubuntu 24.04 job
 configured for Python 3.12. GitHub API metadata confirms successful simulator
 installation, regression, exhaustive simulation, waveform generation and artifact
 upload. The workflow installs Icarus and Verilator; the regression includes RTL
@@ -136,6 +137,10 @@ execution. Exact CI tool versions and numerical reports were not independently
 inspected; see the [CI evidence scope](RESULTS.md#github-actions-verification-separate-from-local-experiments).
 
 ## 15. Results
+
+The table below preserves the original macOS experiment. The fresh review at base
+commit `1621da9` has separate execution evidence in [FINAL_REVIEW.md](FINAL_REVIEW.md);
+its results do not overwrite these historical measurements.
 
 <!-- measured-results:start -->
 | Local executed check | Local measured result |
@@ -154,7 +159,8 @@ OS, seed, checked/pass/fail counts, coverage, completion and measured runtime.
 Raw CSV, simulator logs and coverage JSON are under ignored `results/`; compact
 measured snapshots and selected logs remain under `docs/evidence/`. Early
 exploratory measurements are separately retained in `exploratory.json`. The new
-`github-actions-1.json` record contains GitHub run/job/step metadata only. No local
+`github-actions-1.json` and `github-actions-2.json` records contain GitHub run/job/step
+metadata only. No local
 counts, runtimes or coverage results have been replaced with CI values.
 
 The original ALU at Git revision `32430ca` also passed all 524,288 known-input
@@ -179,7 +185,9 @@ Advanced OOP and native covergroups remain unexecuted on a capable simulator.
 Verilator lint remains unexecuted in the original local experiment, although the
 portable CI run passed with Verilator installed. Manual GTKWave viewing remains
 unexecuted, and detailed CI logs and artifact contents were not independently
-inspected in this audit. No synthesis, gate-level, physical timing,
+inspected in this review. The workflow now selects Node.js 24 action majors, but
+that edited workflow has **NOT RUN** on GitHub; both verified runs predate the upgrade.
+No synthesis, gate-level, physical timing,
 code coverage or formal proof has been performed. Four-state testing is targeted,
 not exhaustive. Delay-based settling assumes the current zero-delay combinational
 DUT. Functional bin selection is intentionally limited, not a universal completeness
@@ -190,7 +198,7 @@ the testbench enforces its known-input contract.
 
 Execute and negatively validate the advanced suite on a capable simulator; run
 Verilator locally when available, retain CI checks for subsequent commits, and
-update the action versions associated with the non-failing runtime warning;
+validate the pending action-version upgrade on GitHub;
 consider synthesis and timing experiments with a
 specified target technology; and extend four-state tests if the input contract
 changes. Keep each addition tied to a measurable question. UVM migration and new

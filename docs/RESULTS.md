@@ -2,7 +2,9 @@
 
 Local measurements generated from executed reports by `python3 scripts/export_results.py`.
 GitHub Actions status is maintained separately below; it does not replace these local measurements.
-The machine-readable snapshot is [evidence/final.json](evidence/final.json).
+The original machine-readable snapshot is [evidence/final.json](evidence/final.json).
+Its historical measurements are unchanged; fresh final-review results are reported
+separately in [FINAL_REVIEW.md](FINAL_REVIEW.md).
 Exploratory runs and the original-source baseline are preserved separately in
 [evidence/exploratory.json](evidence/exploratory.json).
 
@@ -81,37 +83,46 @@ and 10 targeted four-state checks. These counts intentionally include repetition
 <!-- github-actions:start -->
 ## GitHub Actions verification (separate from local experiments)
 
-[RTL verification run #1](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/38939887081) completed successfully for commit
-`cdc8e24494e5237448a241f4361e26cc58b4f33d` on `main`, triggered by a push.
-GitHub's public run page and API agree on the successful conclusion. The `portable`
-job ran on `ubuntu-24.04`; its API timestamps are 2026-10-16 17:28:08–17:28:35 UTC
-(2026-10-17 00:28:08–00:28:35 UTC+7). The workflow selects Python 3.12.
-The separately retrieved [CI metadata](evidence/github-actions-1.json) records
-run identity, commit, job and step outcomes; it is not a simulation log.
+**VERIFIED:** [run #1](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/38939887081) succeeded for
+`cdc8e24494e5237448a241f4361e26cc58b4f33d`; [run #2](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/38943467205) also succeeded for
+`1621da9b2d9d395698cc23a3dfc3ecf2e66e905d`. Both were push runs on `main` on
+October 16, 2026 UTC (October 17 in UTC+7). Public run pages and API metadata
+confirm the commit identities and successful conclusions. Separate metadata
+records are [run #1](evidence/github-actions-1.json) and
+[run #2](evidence/github-actions-2.json); these are not simulator logs.
 
-GitHub reports success for simulator installation, the regression step
+Both `portable` jobs used `ubuntu-24.04`, with Python 3.12 selected by the workflow.
+GitHub reports successful simulator installation, regression
 (`make regression SEED=2026 COUNT=1000`), exhaustive simulation (`make exhaustive`),
-waveform generation (`make waveform`) and evidence upload. The committed workflow
-installs Icarus and Verilator, and the regression invokes Verilator RTL lint when
-available. Together, the successful install/regression steps and those commands
-support Verilator lint passing in CI. Verilator remains NOT RUN in the original
-local macOS experiment, where it was unavailable.
+waveform generation (`make waveform`) and artifact upload. The regression covers
+unit/integration tests, RTL lint, directed/random checks, custom functional coverage,
+metamorphic properties, negative/mutation tests and reproducibility. Successful
+Icarus/Verilator installation and regression steps, together with the committed
+commands, support Verilator RTL lint passing in CI. Local Verilator execution is a
+separate limitation: it was unavailable in both the original and final-review runs.
 
-The public run page lists the `verification-evidence` artifact. Its contents and
-the detailed CI logs were not downloaded or independently inspected in this audit.
-Consequently, exact CI simulator versions, transaction counts, functional-bin hits
-and per-test runtimes are not presented as newly measured values here. All numeric
-experiment tables above and `evidence/final.json` remain the original local data.
-The CI job duration is not an ALU simulation-performance measurement.
+Both public pages list `verification-evidence` artifacts. Detailed CI logs and
+artifact contents were not independently inspected; exact CI tool versions,
+transaction counts, bin hits and per-test runtimes are not claimed from status
+alone. All numerical tables above and `evidence/final.json` preserve the original
+macOS measurements. Fresh local checks at base commit `1621da9` are recorded
+separately in [FINAL_REVIEW.md](FINAL_REVIEW.md). CI job duration is not a measured
+ALU simulation-performance result.
 
-The workflow runs only the portable suite: advanced OOP and native covergroups
-remain **NOT RUN**. The defined 142-bin metric is custom functional coverage, not
-code coverage or native covergroup coverage; the local 142/142 result is not relabeled
-as an independently inspected CI coverage measurement. This successful run applies
-to the recorded commit, not automatically to later changes.
+**FIXED:** both historical runs reported a non-failing Node.js 20 deprecation
+warning. The working-tree workflow now uses `actions/checkout@v7`,
+`actions/setup-python@v7` and `actions/upload-artifact@v7`; the verified stable
+release manifests use Node.js 24. Ubuntu 24.04, Python 3.12, permissions, verification
+commands and artifact settings are unchanged. See the
+[action release evidence](evidence/review-1621da9/action-releases.json).
+**NOT RUN:** this upgraded workflow has not executed on GitHub. The two successful
+historical runs used the previous action versions and do not validate this change.
 
-GitHub also reports a non-failing Node.js 20 deprecation annotation for the action
-versions used; updating those action versions remains workflow maintenance work.
+Advanced OOP/native covergroups remain **NOT RUN — Requires a compatible
+SystemVerilog simulator**. The 142-bin plan is custom functional coverage, not code
+coverage or native covergroup coverage. Local 142/142 results are not relabeled as
+independently inspected CI measurements. Each CI conclusion applies only to its
+recorded commit.
 <!-- github-actions:end -->
 
 ## Remaining verification limits
