@@ -1,0 +1,113 @@
+{
+  "base_commit": "1621da9b2d9d395698cc23a3dfc3ecf2e66e905d",
+  "initial_git_status": "clean",
+  "started_at_utc": "2026-10-17T03:41:50.006380+00:00",
+  "os": "macOS-13.7.8-x86_64-i386-64bit",
+  "python": "3.10.11",
+  "backup": {
+    "archive": "/var/folders/jp/3k9m361d747f5kxw4svsdrbc0000gq/T/rtl-pre-review-backup-xxjgor1o/generated-before-clean.tar.gz",
+    "files": 210,
+    "archive_sha256": "21bb5d12967c9b15ce9b94283c4fad532f82686885f806b57368f08296dd86e5"
+  },
+  "historical_source_hashes_match": true,
+  "source_sha256": {
+    "rtl/adder_8bit.sv": "5535199b8a8ec2b0539f983b251b63207bad75fb1a7ef2b478dfbed902ea605c",
+    "rtl/alu_8bit.sv": "1d9aef598f1ff52c5f10bca44d207e30e2dbe79b5e9ffe169735114ff9a1ce03",
+    "tb/alu_oop_env.svh": "0cf53ce86bb6b96b430dec17d4edceeceac880382139fbfabbbdfc99101b257a",
+    "tb/alu_reference.svh": "967cbb0495b825f3717387c36be57093b2528c4c626bbfffc7cb40ad4eab0997",
+    "tb/tb_adder_8bit.sv": "86e4563d914fbc48ca4d8de635bfc822ae782efb58ea4164ac4d29882fe287ae",
+    "tb/tb_alu_coverage.sv": "734fe38c33b05903e10649ce89de8ab6a41c253e6555a5fcbf5efdee599020db",
+    "tb/tb_alu_flat.sv": "2daa10dc39c6e6d326260bb073451c4b9c87ba3c551630c5563f53c2eb1bd990",
+    "tb/tb_alu_four_state.sv": "6f1af097b2d138e470213d023ce67f4f6dee93f7b894884224f670e836d3dbd0",
+    "tb/tb_alu_oop.sv": "657049cd9fb51c7d2de8a05ff2d24e85b8086d31aa77e9691507826c85a39285",
+    "tb/tb_alu_vectors.sv": "4285fee77a6e693486dcc795fd702e655f1f8e4cae20f1834498bddcf230c675",
+    "tests/test_verification.py": "1dd242803238938b8a4259dba7e289e0fcfa0502c272964845a53e382dbefa1d",
+    "verification/coverage.py": "7fd6e2ac3c2cd67883f45bf60d89570c73f6eac183dc0134a2112c9b89a1aa5d",
+    "verification/known_answers.csv": "1e4415b7ff495f9e616635e111db0747b9c0e1782d99e4fddb355cc94346fb27",
+    "verification/model.py": "33c6a6883a3faa706bd1ffa0cc706b57c94060550e5d508e263e6fd816959476",
+    "verification/run.py": "ceec833c1469d2825ac72fc2987f5455351b655ffa68c123b6feb547f86a315f",
+    "verification/stimuli.py": "a8a7bf7c2d00a363eb09674b507857ebc79fa2ae39a39ca9e6df1e94a4d9f916"
+  },
+  "workflow_sha256": "ed562552afbfb246ed60e7ea9dfd3d83b7c8cb753f2e31a694b6d195bfc7f41f",
+  "scope": "Fresh local execution; workflow action-major upgrades are uncommitted and NOT RUN on GitHub",
+  "versions": {
+    "iverilog": {
+      "exit_code": 0,
+      "version": "Icarus Verilog version 13.0 (stable) (v13_0)"
+    },
+    "vvp": {
+      "exit_code": 0,
+      "version": "Icarus Verilog runtime version 13.0 (stable) (v13_0)"
+    },
+    "verilator": "NOT RUN: executable unavailable"
+  },
+  "commands": [
+    {
+      "command": [
+        "make",
+        "clean"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.235703,
+      "log": "01-clean.log"
+    },
+    {
+      "command": [
+        "make",
+        "lint"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.64024,
+      "log": "02-lint.log"
+    },
+    {
+      "command": [
+        "make",
+        "test"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 3.582679,
+      "log": "03-test.log"
+    },
+    {
+      "command": [
+        "make",
+        "regression",
+        "SEED=2026",
+        "COUNT=1000"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 4.130182,
+      "log": "04-regression.log"
+    },
+    {
+      "command": [
+        "make",
+        "exhaustive"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 21.697988,
+      "log": "05-exhaustive.log"
+    },
+    {
+      "command": [
+        "make",
+        "mutation"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.635609,
+      "log": "06-mutation.log"
+    },
+    {
+      "command": [
+        "make",
+        "waveform"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.379829,
+      "log": "07-waveform.log"
+    }
+  ],
+  "completed_at_utc": "2026-10-17T03:42:21.875236+00:00",
+  "status": "PASS"
+}

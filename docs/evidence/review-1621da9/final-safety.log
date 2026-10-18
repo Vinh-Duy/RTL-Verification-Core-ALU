@@ -1,0 +1,6 @@
+PASS: original tracked evidence unchanged: 9 files
+PASS: source hashes unchanged: 16 sources; all original numerical tables preserved
+PASS: fresh JSON matches real output, counters/coverage/mutants consistent; backup digest valid
+PASS: workflow parses, only three action versions changed; supported inputs/node24
+PASS: compiler logs contain only command headers: 24 ; valid VCD; local document links: 40
+PASS: portfolio summary: 115 words; four highlights, two CV lines, five questions

@@ -1,0 +1,42 @@
+python3 -m unittest discover -s tests -v
+test_malformed_stimulus_fails (test_verification.BridgeIntegrityTests) ... ok
+test_missing_transaction_fails (test_verification.BridgeIntegrityTests) ... ok
+test_out_of_order_transaction_fails (test_verification.BridgeIntegrityTests) ... ok
+test_unknown_expectation_fails (test_verification.BridgeIntegrityTests) ... ok
+test_unknown_input_cannot_hide_behind_masking (test_verification.BridgeIntegrityTests) ... ok
+test_bad_count_nonzero (test_verification.FailurePropagationTests) ... ok
+test_faulty_dut_runner_nonzero (test_verification.FailurePropagationTests) ... ok
+test_missing_simulator_nonzero (test_verification.FailurePropagationTests) ... ok
+test_coverage_closure_reachability (test_verification.OracleTests) ... ok
+test_division_identity (test_verification.OracleTests) ... ok
+test_empty_coverage_is_zero (test_verification.OracleTests) ... ok
+test_exhaustive_plan_unique (test_verification.OracleTests) ... ok
+test_invalid_inputs (test_verification.OracleTests) ... ok
+test_literal_answers (test_verification.OracleTests) ... ok
+test_random_reproduction_and_distribution (test_verification.OracleTests) ... ok
+test_subtraction_round_trip (test_verification.OracleTests) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 1.651s
+
+OK
+python3 -m verification.run --seed 2026 --count 1000 --timeout 120 --mode regression --output results/regression
+RTL checks passed; NOT RUN: executable unavailable
+tb_adder_8bit: PASS
+tb_alu_flat: PASS
+tb_alu_four_state: PASS
+initial: PASS; checked=1116 failed=0 coverage=138/142 seed=2026
+closed: PASS; checked=1333 failed=0 coverage=142/142 seed=2026
+properties: PASS; checked=85 failed=0 coverage=96/142 seed=2026
+xor_inverse: PASS; checked=5 failed=0 coverage=15/142 seed=2026
+wrong_add: FAIL; checked=32 failed=3 coverage=92/142 seed=2026
+  MISMATCH {'id': 0, 'name': 'add_zero', 'opcode': 'ADD', 'a': 0, 'b': 0, 'expected': 0, 'actual': '0001', 'seed': 2026}
+  MISMATCH {'id': 1, 'name': 'add_carry', 'opcode': 'ADD', 'a': 255, 'b': 1, 'expected': 256, 'actual': '0101', 'seed': 2026}
+  MISMATCH {'id': 2, 'name': 'add_max', 'opcode': 'ADD', 'a': 255, 'b': 255, 'expected': 510, 'actual': '01ff', 'seed': 2026}
+unknown_add: FAIL; checked=32 failed=3 coverage=92/142 seed=2026
+  MISMATCH {'id': 0, 'name': 'add_zero', 'opcode': 'ADD', 'a': 0, 'b': 0, 'expected': 0, 'actual': 'xxxx', 'seed': 2026}
+  MISMATCH {'id': 1, 'name': 'add_carry', 'opcode': 'ADD', 'a': 255, 'b': 1, 'expected': 256, 'actual': 'xxxx', 'seed': 2026}
+  MISMATCH {'id': 2, 'name': 'add_max', 'opcode': 'ADD', 'a': 255, 'b': 255, 'expected': 510, 'actual': 'xxxx', 'seed': 2026}
+clean_after_mutation: PASS; checked=32 failed=0 coverage=102/142 seed=2026
+reproducibility: PASS; checked=1116 failed=0 coverage=138/142 seed=2026
+REGRESSION PASS: /Users/vinhduy/Desktop/Verification_Adder/results/regression/regression_summary.json

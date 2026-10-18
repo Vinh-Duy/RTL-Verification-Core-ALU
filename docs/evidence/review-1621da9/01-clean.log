@@ -1,0 +1,1 @@
+python3 -c "import shutil; from pathlib import Path; [shutil.rmtree(p) for p in (Path('build'), Path('results')) if p.exists()]"

@@ -1,0 +1,30 @@
+python3 -m unittest discover -s tests -v
+test_malformed_stimulus_fails (test_verification.BridgeIntegrityTests) ... ok
+test_missing_transaction_fails (test_verification.BridgeIntegrityTests) ... ok
+test_out_of_order_transaction_fails (test_verification.BridgeIntegrityTests) ... ok
+test_unknown_expectation_fails (test_verification.BridgeIntegrityTests) ... ok
+test_unknown_input_cannot_hide_behind_masking (test_verification.BridgeIntegrityTests) ... ok
+test_bad_count_nonzero (test_verification.FailurePropagationTests) ... ok
+test_faulty_dut_runner_nonzero (test_verification.FailurePropagationTests) ... ok
+test_missing_simulator_nonzero (test_verification.FailurePropagationTests) ... ok
+test_coverage_closure_reachability (test_verification.OracleTests) ... ok
+test_division_identity (test_verification.OracleTests) ... ok
+test_empty_coverage_is_zero (test_verification.OracleTests) ... ok
+test_exhaustive_plan_unique (test_verification.OracleTests) ... ok
+test_invalid_inputs (test_verification.OracleTests) ... ok
+test_literal_answers (test_verification.OracleTests) ... ok
+test_random_reproduction_and_distribution (test_verification.OracleTests) ... ok
+test_subtraction_round_trip (test_verification.OracleTests) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 1.817s
+
+OK
+python3 -m verification.run --seed 2026 --count 1000 --timeout 120 --mode directed --output results/directed
+directed: PASS; checked=116 failed=0 coverage=130/142 seed=2026
+REGRESSION PASS: /Users/vinhduy/Desktop/Verification_Adder/results/directed/regression_summary.json
+python3 -m verification.run --seed 2026 --count 1000 --timeout 120 --mode examples --output results/examples
+tb_adder_8bit: PASS
+tb_alu_flat: PASS
+tb_alu_four_state: PASS
+REGRESSION PASS: /Users/vinhduy/Desktop/Verification_Adder/results/examples/regression_summary.json

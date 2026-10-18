@@ -1,0 +1,11 @@
+python3 -m verification.run --seed 2026 --count 1000 --timeout 120 --mode mutation --output results/mutation
+wrong_add: FAIL; checked=32 failed=3 coverage=92/142 seed=2026
+  MISMATCH {'id': 0, 'name': 'add_zero', 'opcode': 'ADD', 'a': 0, 'b': 0, 'expected': 0, 'actual': '0001', 'seed': 2026}
+  MISMATCH {'id': 1, 'name': 'add_carry', 'opcode': 'ADD', 'a': 255, 'b': 1, 'expected': 256, 'actual': '0101', 'seed': 2026}
+  MISMATCH {'id': 2, 'name': 'add_max', 'opcode': 'ADD', 'a': 255, 'b': 255, 'expected': 510, 'actual': '01ff', 'seed': 2026}
+unknown_add: FAIL; checked=32 failed=3 coverage=92/142 seed=2026
+  MISMATCH {'id': 0, 'name': 'add_zero', 'opcode': 'ADD', 'a': 0, 'b': 0, 'expected': 0, 'actual': 'xxxx', 'seed': 2026}
+  MISMATCH {'id': 1, 'name': 'add_carry', 'opcode': 'ADD', 'a': 255, 'b': 1, 'expected': 256, 'actual': 'xxxx', 'seed': 2026}
+  MISMATCH {'id': 2, 'name': 'add_max', 'opcode': 'ADD', 'a': 255, 'b': 255, 'expected': 510, 'actual': 'xxxx', 'seed': 2026}
+clean_after_mutation: PASS; checked=32 failed=0 coverage=102/142 seed=2026
+REGRESSION PASS: /Users/vinhduy/Desktop/Verification_Adder/results/mutation/regression_summary.json
