@@ -3,6 +3,21 @@ on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
 jobs:
+  formal:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install Yosys SAT engine
+        run: sudo apt-get update && sudo apt-get install -y yosys
+      - name: Prove ALU equivalence and reject faulty control
+        run: make formal
+      - name: Preserve formal proof logs and counterexample
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: formal-evidence
+          path: results/formal/
   portable:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
