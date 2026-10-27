@@ -1,0 +1,54 @@
+{
+  "evidence_scope": "Public GitHub Actions run/job/step and artifact metadata; detailed logs and artifact contents were not downloaded",
+  "sources": [
+    "https://api.github.com/repos/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/40522416479",
+    "https://api.github.com/repos/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/40522416479/jobs?per_page=20",
+    "https://api.github.com/repos/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/40522416479/artifacts?per_page=20"
+  ],
+  "run": {
+    "id": 40522416479,
+    "number": 4,
+    "name": "RTL verification",
+    "event": "push",
+    "branch": "main",
+    "head_sha": "68a0f9ffde37e0e6964a4922e9d7a1c3e77fe214",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-27T14:34:33Z",
+    "updated_at": "2026-10-27T14:35:07Z",
+    "html_url": "https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/40522416479"
+  },
+  "jobs": [
+    {
+      "id": 122252769803,
+      "name": "formal",
+      "runner": "ubuntu-24.04",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {"name": "Install Yosys SAT engine", "conclusion": "success"},
+        {"name": "Prove ALU equivalence and reject faulty control", "conclusion": "success"},
+        {"name": "Preserve formal proof logs and counterexample", "conclusion": "success"}
+      ],
+      "html_url": "https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/40522416479/job/122252769803"
+    },
+    {
+      "id": 122252768871,
+      "name": "portable",
+      "runner": "ubuntu-24.04",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 12741958160,
+      "name": "formal-evidence",
+      "size_in_bytes": 11145,
+      "digest": "sha256:46fcf05a5babbb3b3a9af841ea2043b78b18e19bda0b998bd59f43783df6538c",
+      "expired": false,
+      "created_at": "2026-10-27T14:35:01Z"
+    }
+  ],
+  "yosys_version": "Not independently inspected; version output is in the uploaded formal-evidence artifact"
+}

@@ -47,10 +47,15 @@ individual solver logs, the negative-control VCD and a machine-readable summary 
 The repository's current local environment has Python 3.10.11 and Icarus Verilog
 13.0, but no Yosys executable. The existing regression passed before and after
 these changes (16 Python tests and the portable suite, including 1,333 closed-suite
-transactions on each run). The formal proof and negative control are **NOT RUN
-locally**. A separate Ubuntu 24.04 GitHub
-Actions job installs the distribution Yosys package, invokes this same target and
-uploads its evidence. That job must complete successfully before reporting the
-proof as passed. Its Yosys version is recorded in the artifact because the Ubuntu
-package can change over time. The existing simulation regression and mutation
-commands are unchanged.
+transactions on each run). Formal proof remains **NOT RUN locally**.
+
+GitHub Actions [run #4](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/40522416479)
+passed for commit `68a0f9ffde37e0e6964a4922e9d7a1c3e77fe214` on Ubuntu 24.04.
+The `formal` job installed Yosys, ran `make formal`, and uploaded `formal-evidence`.
+The runner exits successfully only when the SAT miter proves output equality and
+the faulty ADD control produces the expected counterexample. The CI run therefore
+verified both outcomes over all 2^19 known-binary inputs. Run/job metadata is saved
+in [github-actions-formal.json](evidence/github-actions-formal.json); the artifact
+was uploaded, but its detailed logs and exact Yosys version were not downloaded
+for this review. The existing simulation regression and mutation commands are
+unchanged.

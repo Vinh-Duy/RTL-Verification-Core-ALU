@@ -55,8 +55,9 @@ local numerical measurements; detailed CI artifacts were not independently inspe
 ## E. Limitations
 
 OOP/native covergroups remain **NOT RUN — Requires a compatible SystemVerilog
-simulator**. A Yosys combinational SAT flow has been added, but its proof is **NOT
-RUN** locally because Yosys is unavailable; the new CI job is pending. The Node.js
+simulator**. A Yosys combinational SAT flow has been added. Its proof and negative
+control passed in GitHub Actions run #4; local execution is **NOT RUN** because
+Yosys is unavailable. The Node.js
 24 action-major update has not yet run on GitHub. Local Verilator and interactive
 GTKWave viewing remain unexecuted. There is no synthesis, gate-level timing,
 physical implementation, code/native assertion coverage or exhaustive X/Z result.

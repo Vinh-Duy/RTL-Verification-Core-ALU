@@ -91,7 +91,8 @@ An independent Yosys SAT miter is available through `make formal`. It is set up 
 compare all 16 result bits for every known binary input combination and to require
 a counterexample for a carry-truncating ADD fault. Formal results remain separate
 from simulation coverage. Yosys is unavailable locally, so the proof is **NOT RUN**
-here; the new Ubuntu CI job has not run yet. See the
+on this machine. GitHub Actions run #4 passed for commit `68a0f9f`, including the
+formal job. See the
 [formal verification notes](docs/FORMAL_VERIFICATION.md) for exact scope and limits.
 
 The table preserves the original local measurements. Fresh checks and their source
@@ -239,9 +240,9 @@ Verilator was absent from the original local experiment; the portable GitHub
 Actions run passed with Verilator installed. Detailed CI logs/artifact measurements
 were not independently inspected in this review. The upgraded workflow has not
 run on GitHub. No synthesis, physical timing or code coverage is claimed. The
-formal miter exists, but proof completion is **NOT RUN** locally pending a
-Yosys-capable environment and CI result. X/Z tests cover selected semantics, not
-all four-state combinations.
+formal miter passed in CI run #4; it remains **NOT RUN** on this machine because
+Yosys is unavailable. X/Z tests cover selected semantics, not all four-state
+combinations.
 Measured evidence applies to the recorded sources and input contract only.
 
 ## 16. Future Work
