@@ -187,8 +187,10 @@ portable CI run passed with Verilator installed. Manual GTKWave viewing remains
 unexecuted, and detailed CI logs and artifact contents were not independently
 inspected in this review. The workflow now selects Node.js 24 action majors, but
 that edited workflow has **NOT RUN** on GitHub; both verified runs predate the upgrade.
-No synthesis, gate-level, physical timing,
-code coverage or formal proof has been performed. Four-state testing is targeted,
+No synthesis, gate-level, physical timing or code coverage has been performed.
+A Yosys combinational SAT miter was added after this report's recorded experiments;
+its proof is **NOT RUN** locally because Yosys is unavailable, and the new CI job
+has not executed. See [FORMAL_VERIFICATION.md](FORMAL_VERIFICATION.md). Four-state testing is targeted,
 not exhaustive. Delay-based settling assumes the current zero-delay combinational
 DUT. Functional bin selection is intentionally limited, not a universal completeness
 claim. The preserved default unknown-opcode result can mask invalid inputs unless

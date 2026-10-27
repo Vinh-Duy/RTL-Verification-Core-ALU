@@ -85,6 +85,15 @@ coverage. The transaction pass rate and exhaustive input count are separate metr
 
 ## 8. Verification Results
 
+### Formal equivalence status
+
+An independent Yosys SAT miter is available through `make formal`. It is set up to
+compare all 16 result bits for every known binary input combination and to require
+a counterexample for a carry-truncating ADD fault. Formal results remain separate
+from simulation coverage. Yosys is unavailable locally, so the proof is **NOT RUN**
+here; the new Ubuntu CI job has not run yet. See the
+[formal verification notes](docs/FORMAL_VERIFICATION.md) for exact scope and limits.
+
 The table preserves the original local measurements. Fresh checks and their source
 hashes are recorded separately in the [final review](docs/FINAL_REVIEW.md).
 
@@ -218,6 +227,7 @@ vvp build/alu_flat +SEED=2026 +COUNT=100 +WAVE=results/manual/alu.vcd
 - [Advanced suite](docs/ADVANCED_SUITE.md)
 - [Application summary and interview preparation](docs/PROJECT_SUMMARY.md)
 - [Final engineering review and fresh execution](docs/FINAL_REVIEW.md)
+- [Formal verification notes](docs/FORMAL_VERIFICATION.md)
 
 Tool references: [Icarus command-line options](https://steveicarus.github.io/iverilog/usage/command_line_flags.html)
 and [Verilator lint options](https://verilator.org/guide/latest/exe_verilator.html).
@@ -228,8 +238,10 @@ Advanced OOP/native covergroups have not been executed on a suitable simulator.
 Verilator was absent from the original local experiment; the portable GitHub
 Actions run passed with Verilator installed. Detailed CI logs/artifact measurements
 were not independently inspected in this review. The upgraded workflow has not
-run on GitHub. No synthesis, physical timing, formal proof or code coverage is
-claimed. X/Z tests cover selected semantics, not all four-state combinations.
+run on GitHub. No synthesis, physical timing or code coverage is claimed. The
+formal miter exists, but proof completion is **NOT RUN** locally pending a
+Yosys-capable environment and CI result. X/Z tests cover selected semantics, not
+all four-state combinations.
 Measured evidence applies to the recorded sources and input contract only.
 
 ## 16. Future Work
