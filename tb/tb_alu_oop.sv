@@ -2,7 +2,11 @@
 `include "alu_oop_env.svh"
 module tb_alu_oop;
     alu_if vif();
+`ifdef ALU_NEGATIVE_CONTROL
+    alu_8bit_faulty dut(.a(vif.a), .b(vif.b), .opcode(vif.opcode), .result(vif.result));
+`else
     alu_8bit dut(.a(vif.a), .b(vif.b), .opcode(vif.opcode), .result(vif.result));
+`endif
     environment env;
     int count = 20, seed = 2026, unused;
     string wave;

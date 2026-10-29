@@ -32,6 +32,8 @@ class generator;
             tx.id = i;
             // Every opcode appears in the first eight transactions.
             if (i < 8) tx.opcode = 3'(i);
+            $display("ADVANCED_STIMULUS id=%0d seed=%0d opcode=%0d a=%0d b=%0d",
+                     tx.id, seed, tx.opcode, tx.a, tx.b);
             gen2drv.put(tx); // Ownership transfers; generator never reuses tx.
         end
         gen2drv.put(null); // Explicit end of stream.
@@ -138,6 +140,8 @@ class scoreboard;
         $display("VERIFICATION SUMMARY total=%0d passed=%0d failed=%0d seed=%0d", total, passed, failed, seed);
 `ifdef ALU_NATIVE_COVERAGE
         $display("Native covergroup coverage (separate metric): %0.2f%%", alu_cg.get_inst_coverage());
+        if (alu_cg.get_inst_coverage() < 100.0)
+            $fatal(1, "Native covergroup bins incomplete: %0.2f%%", alu_cg.get_inst_coverage());
 `endif
         if (failed || total != count) $fatal(1, "Status: FAIL");
         $display("Status: PASS");
