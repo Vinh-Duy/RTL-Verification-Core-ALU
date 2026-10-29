@@ -17,9 +17,10 @@ original experiments, successful GitHub runs and the fresh
 [final review](docs/FINAL_REVIEW.md). The adder and flat/OOP examples preserve the
 project's educational progression.
 
-**The advanced OOP/native-covergroup examples require a capable SystemVerilog
-simulator and have NOT RUN in the current environment.** They are preserved and
-restructured, but their execution is not a prerequisite for portable verification.
+The advanced OOP/CRV/native-covergroup suite now has a dedicated `make advanced`
+target and CI job pinned to Verilator 5.052. The local machine lacks Verilator and
+Z3, so this revision's advanced result remains **NOT RUN locally** until the
+workflow executes. See [advanced suite status and evidence](docs/ADVANCED_SUITE.md).
 
 ## 2. Motivation
 
@@ -166,6 +167,7 @@ executable produces an explicit error and nonzero status.
 ```sh
 make test             # Python checks, directed ALU, adder, flat and X/Z examples
 make regression       # lint/elaboration, random, coverage, properties, mutations, replay
+make advanced SEED=2026 COUNT=4096  # native OOP/CRV/covergroups and fault control
 ```
 
 ## 12. Running Regression Tests
@@ -235,20 +237,17 @@ and [Verilator lint options](https://verilator.org/guide/latest/exe_verilator.ht
 
 ## 15. Limitations
 
-Advanced OOP/native covergroups have not been executed on a suitable simulator.
-Verilator was absent from the original local experiment; the portable GitHub
-Actions run passed with Verilator installed. Detailed CI logs/artifact measurements
-were not independently inspected in this review. The upgraded workflow has not
-run on GitHub. No synthesis, physical timing or code coverage is claimed. The
-formal miter passed in CI run #4; it remains **NOT RUN** on this machine because
-Yosys is unavailable. X/Z tests cover selected semantics, not all four-state
-combinations.
+The advanced suite and its new CI job have not yet run on this revision; no native
+covergroup result is claimed. The portable GitHub Actions run passed with Verilator
+installed for lint, but that was not an OOP simulation. No synthesis, physical
+timing or code coverage is claimed. The formal miter passed in CI run #4; it
+remains **NOT RUN** on this machine because Yosys is unavailable. X/Z tests cover
+selected semantics, not all four-state combinations.
 Measured evidence applies to the recorded sources and input contract only.
 
 ## 16. Future Work
 
-Run and validate the advanced environment on a suitable simulator, retain CI
-checks for future revisions, validate the pending action-runtime upgrade, and consider a
-separately scoped synthesis/timing experiment. Keep the design
-small and understandable; UVM migration and extra hardware blocks are outside
-this revision's scope.
+Run the advanced job on GitHub and review its uploaded simulator/coverage
+artifacts; validate the pending action-runtime upgrade, and consider a separately
+scoped synthesis/timing experiment. Keep the design small and understandable;
+UVM migration and extra hardware blocks are outside this revision's scope.

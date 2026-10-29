@@ -48,10 +48,11 @@ row, rechecks its result, collects coverage and generates JSON reports. A simula
 watchdog and configurable subprocess timeout bound execution.
 
 The flat SV example remains directly runnable. The shared advanced environment
-now separates generator, driver, monitor, scoreboard and coverage sampling using
-bounded mailboxes and acknowledgments. Its source is inspected but **NOT RUN** in
-a capable simulator; details and commands are in [ADVANCED_SUITE.md](ADVANCED_SUITE.md).
-No results from Python are attributed to native covergroups.
+separates generator, driver, monitor, scoreboard and coverage sampling using
+bounded mailboxes and acknowledgments. The new `make advanced` runner and pinned
+Verilator 5.052 CI job have not yet executed on this revision; see
+[ADVANCED_SUITE.md](ADVANCED_SUITE.md). No results from Python are attributed to
+native covergroups.
 
 ## 7. Reference Model
 
@@ -181,7 +182,8 @@ changes clarify widths and signedness; no functional arithmetic bug was establis
 
 ## 17. Limitations
 
-Advanced OOP and native covergroups remain unexecuted on a capable simulator.
+Advanced OOP and native covergroups remain unexecuted on this revision; the new
+Verilator 5.052 job is pending its first GitHub Actions run.
 Verilator lint remains unexecuted in the original local experiment, although the
 portable CI run passed with Verilator installed. Manual GTKWave viewing remains
 unexecuted, and detailed CI logs and artifact contents were not independently
@@ -199,9 +201,8 @@ the testbench enforces its known-input contract.
 
 ## 18. Future Work
 
-Execute and negatively validate the advanced suite on a capable simulator; run
-Verilator locally when available, retain CI checks for subsequent commits, and
-validate the pending action-version upgrade on GitHub;
+Execute and review the advanced job's uploaded evidence on GitHub; retain CI
+checks for subsequent commits and validate the pending action-version upgrade;
 consider synthesis and timing experiments with a
 specified target technology; and extend four-state tests if the input contract
 changes. Keep each addition tied to a measurable question. UVM migration and new
