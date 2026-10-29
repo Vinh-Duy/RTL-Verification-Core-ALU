@@ -4,7 +4,7 @@ COUNT ?= 1000
 TIMEOUT ?= 120
 RUN = $(PYTHON) -m verification.run --seed $(SEED) --count $(COUNT) --timeout $(TIMEOUT)
 
-.PHONY: lint test test-random coverage regression mutation exhaustive waveform formal clean unit examples
+.PHONY: lint test test-random coverage regression mutation exhaustive waveform formal clean unit examples advanced
 lint:
 	$(RUN) --mode lint --output results/lint-run
 unit:
@@ -26,6 +26,8 @@ waveform:
 	$(RUN) --mode directed --output results/waveform --wave
 formal:
 	$(PYTHON) formal/run_formal.py
+advanced:
+	$(PYTHON) scripts/run_advanced.py --seed $(SEED) --count $(COUNT)
 examples:
 	$(RUN) --mode examples --output results/examples
 clean:
