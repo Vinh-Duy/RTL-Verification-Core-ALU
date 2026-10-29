@@ -40,3 +40,29 @@ jobs:
         with:
           name: verification-evidence
           path: results/
+  advanced:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install Verilator build dependencies and Z3
+        run: sudo apt-get update && sudo apt-get install -y autoconf bison flex g++ git help2man make perl python3 z3=4.8.12-3.1build1
+      - name: Build pinned Verilator release
+        run: |
+          git clone --depth 1 --branch v5.052 https://github.com/verilator/verilator.git /tmp/verilator
+          cd /tmp/verilator
+          autoconf
+          ./configure --prefix=/usr/local
+          make -j2
+          sudo make install
+          verilator --version
+          verilator_coverage --version
+          z3 --version
+      - name: Run feature probes, OOP CRV, native coverage and negative control
+        run: make advanced SEED=2026 COUNT=4096
+      - name: Preserve advanced logs, waveform and coverage data
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: advanced-verification-evidence
+          path: results/advanced/
