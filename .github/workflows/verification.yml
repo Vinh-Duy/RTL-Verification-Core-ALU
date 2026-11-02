@@ -45,24 +45,167 @@ jobs:
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@v7
-      - name: Install Verilator build dependencies and Z3
-        run: sudo apt-get update && sudo apt-get install -y autoconf bison flex g++ git help2man make perl python3 z3=4.8.12-3.1build1
-      - name: Build pinned Verilator release
+      - name: Initialize advanced evidence
         run: |
-          git clone --depth 1 --branch v5.052 https://github.com/verilator/verilator.git /tmp/verilator
-          cd /tmp/verilator
-          autoconf
-          ./configure --prefix=/usr/local
-          make -j2
-          sudo make install
-          verilator --version
-          verilator_coverage --version
-          z3 --version
+          mkdir -p results/advanced
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = {
+              "status": "RUNNING",
+              "stage": "dependency_installation",
+              "exit_code": None,
+              "seed": 2026,
+              "count": 4096,
+              "preflight": {},
+              "tool_versions": {},
+              "completed_stages": [],
+              "log_paths": {
+                  "dependency_installation": "results/advanced/dependencies-install.log",
+                  "dependency_installation_exit_code": "results/advanced/dependencies-install.exit-code",
+                  "verilator_build": "results/advanced/verilator-build.log",
+                  "verilator_build_exit_code": "results/advanced/verilator-build.exit-code",
+                  "advanced_runner": "results/advanced/summary.json",
+                  "advanced_runner_exit_code": "results/advanced/advanced-runner.exit-code",
+              },
+              "workflow": {
+                  "run_id": "${{ github.run_id }}",
+                  "run_attempt": "${{ github.run_attempt }}",
+                  "commit": "${{ github.sha }}",
+              },
+          }
+          Path("results/advanced/summary.json").write_text(
+              json.dumps(report, indent=2) + "\n", encoding="utf-8"
+          )
+          PY
+      - name: Install Verilator build dependencies and Z3
+        id: install
+        run: |
+          set +e
+          sudo apt-get update 2>&1 | tee results/advanced/dependencies-install.log
+          statuses=("${PIPESTATUS[@]}")
+          status="${statuses[0]}"
+          if [ "${statuses[1]}" -ne 0 ] && [ "$status" -eq 0 ]; then
+            status="${statuses[1]}"
+          fi
+          if [ "$status" -eq 0 ]; then
+            sudo apt-get install -y autoconf bison flex g++ git help2man libfl-dev make perl python3 z3=4.8.12-3.1build1 2>&1 | tee -a results/advanced/dependencies-install.log
+            statuses=("${PIPESTATUS[@]}")
+            status="${statuses[0]}"
+            if [ "${statuses[1]}" -ne 0 ] && [ "$status" -eq 0 ]; then
+              status="${statuses[1]}"
+            fi
+          fi
+          echo "$status" > results/advanced/dependencies-install.exit-code
+          set -e
+          exit "$status"
+      - name: Build pinned Verilator release
+        id: build_verilator
+        run: |
+          set +e
+          {
+            set -e
+            git clone --depth 1 --branch v5.052 https://github.com/verilator/verilator.git /tmp/verilator
+            cd /tmp/verilator
+            autoconf
+            ./configure --prefix=/usr/local
+            make -j2
+            sudo make install
+            verilator --version
+            verilator_coverage --version
+            z3 --version
+          } 2>&1 | tee "$GITHUB_WORKSPACE/results/advanced/verilator-build.log"
+          statuses=("${PIPESTATUS[@]}")
+          status="${statuses[0]}"
+          if [ "${statuses[1]}" -ne 0 ] && [ "$status" -eq 0 ]; then
+            status="${statuses[1]}"
+          fi
+          echo "$status" > "$GITHUB_WORKSPACE/results/advanced/verilator-build.exit-code"
+          set -e
+          exit "$status"
       - name: Run feature probes, OOP CRV, native coverage and negative control
-        run: make advanced SEED=2026 COUNT=4096
+        id: advanced
+        run: |
+          set +e
+          make advanced SEED=2026 COUNT=4096
+          status=$?
+          echo "$status" > results/advanced/advanced-runner.exit-code
+          set -e
+          exit "$status"
+      - name: Finalize advanced status
+        if: always()
+        env:
+          INSTALL_OUTCOME: ${{ steps.install.outcome }}
+          BUILD_OUTCOME: ${{ steps.build_verilator.outcome }}
+          RUNNER_OUTCOME: ${{ steps.advanced.outcome }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import shutil
+          import subprocess
+          from pathlib import Path
+
+          root = Path("results/advanced")
+          report_path = root / "summary.json"
+          report = json.loads(report_path.read_text(encoding="utf-8"))
+          outcomes = {
+              "dependency_installation": os.environ["INSTALL_OUTCOME"],
+              "verilator_build": os.environ["BUILD_OUTCOME"],
+              "advanced_runner": os.environ["RUNNER_OUTCOME"],
+          }
+          report["workflow_step_outcomes"] = outcomes
+          report.setdefault("preflight", {})
+          report.setdefault("tool_versions", {})
+          for tool, option in (
+              ("verilator", "--version"),
+              ("verilator_coverage", "--version"),
+              ("z3", "--version"),
+          ):
+              path = shutil.which(tool)
+              details = {"available": path is not None, "path": path, "version": None}
+              if path is not None:
+                  try:
+                      result = subprocess.run(
+                          [path, option],
+                          text=True,
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.STDOUT,
+                          timeout=15,
+                          check=False,
+                      )
+                  except (OSError, subprocess.TimeoutExpired) as exc:
+                      details["error"] = str(exc)
+                  else:
+                      details["version"] = result.stdout.strip()
+                      details["version_exit_code"] = result.returncode
+                      report["tool_versions"][tool] = details["version"]
+              report["preflight"][tool] = details
+          if report["status"] == "RUNNING":
+              if outcomes["dependency_installation"] == "failure":
+                  stage, code_file = "dependency_installation", root / "dependencies-install.exit-code"
+              elif outcomes["verilator_build"] == "failure":
+                  stage, code_file = "verilator_build", root / "verilator-build.exit-code"
+              elif outcomes["advanced_runner"] == "failure":
+                  stage = report.get("stage", "advanced_runner")
+                  code_file = root / "advanced-runner.exit-code"
+              else:
+                  stage, code_file = "advanced_runner", None
+              report["stage"] = stage
+              report["status"] = "FAIL" if "failure" in outcomes.values() else "NOT_RUN"
+              report["exit_code"] = (
+                  int(code_file.read_text(encoding="utf-8").strip())
+                  if code_file is not None and code_file.is_file()
+                  else None
+              )
+              report["error"] = f"Workflow stopped at {stage}"
+          report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+          PY
       - name: Preserve advanced logs, waveform and coverage data
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: advanced-verification-evidence
           path: results/advanced/
+          if-no-files-found: warn

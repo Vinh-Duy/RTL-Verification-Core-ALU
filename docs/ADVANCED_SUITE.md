@@ -10,9 +10,22 @@ wrapper, and requires a controlled faulty-ALU run to fail its scoreboard.
 This change has **not yet been executed with Verilator 5.052**. The local machine
 has Icarus Verilog but no Verilator or Z3, and this request explicitly does not
 authorize a commit or push. Therefore no advanced simulator pass, native coverage
-total, or negative-control result is claimed yet. A GitHub Actions run on this
-revision is needed to complete the evidence. `make advanced` exits nonzero and
-prints `ADVANCED NOT RUN` when a required executable is absent.
+total, or negative-control result is claimed yet. A subsequent GitHub Actions run
+with the dependency correction is needed to complete the evidence. `make advanced`
+exits nonzero and prints `ADVANCED NOT RUN` when a required executable is absent.
+The workflow creates an initial `summary.json` before setup, captures dependency
+and build exit codes, and finalizes that report before the always-run artifact
+upload. The runner's report includes its exit code, preflight versions, stopping
+stage, and stage log paths.
+
+The GitHub Actions run for commit `bbb063e` (run 6, 2026-10-29) confirms why no
+advanced tests ran: dependency installation succeeded, but building Verilator
+failed in `src/obj_dbg` and `src/obj_opt` while compiling `V3ParseLex.cpp`:
+`fatal error: FlexLexer.h: No such file or directory`. The build exited 2, so the
+advanced test step was skipped. This is a missing Flex development-header
+dependency, not a simulator feature-probe or testbench failure. The workflow now
+installs `libfl-dev` and preserves installation/build logs; this correction still
+requires a subsequent CI run for validation.
 
 ## Source audit
 
@@ -54,8 +67,11 @@ runtime. Official references:
 The release notes and documented feature availability establish the candidate
 version; they do not substitute for a successful run of this repository's bench.
 
-The runner enforces the following checks and retains logs in ignored
-`results/advanced/`:
+The runner enforces the following checks and retains preflight, stage status,
+logs, and generated data in ignored `results/advanced/`. `summary.json` records
+the outcome and stopping stage, including `NOT_RUN` when required tools are
+missing. The workflow finalizer also records failures that occur before the
+runner starts, such as dependency installation or Verilator compilation.
 
 1. A small feature probe requires native `randomize()` to honor a nontrivial
    `inside`/`dist` constraint and requires both covergroup bins to reach 100%.

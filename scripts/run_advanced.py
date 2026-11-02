@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import collections
+import json
 from pathlib import Path
 import re
 import shutil
@@ -113,75 +114,219 @@ def main() -> int:
     args = parser.parse_args()
     if args.count < 8:
         parser.error("--count must be at least 8")
-    for tool in ("verilator", "verilator_coverage", "z3"):
-        if shutil.which(tool) is None:
-            print(f"ADVANCED NOT RUN: required executable '{tool}' is unavailable", file=sys.stderr)
+    OUT.mkdir(parents=True, exist_ok=True)
+    report: dict = {
+        "status": "RUNNING",
+        "stage": "preflight",
+        "exit_code": None,
+        "seed": args.seed,
+        "count": args.count,
+        "preflight": {},
+        "tool_versions": {},
+        "log_paths": {
+            "preflight": [
+                "results/advanced/tool-versions.txt",
+                "results/advanced/verilator_version.log",
+                "results/advanced/coverage_tool_version.log",
+                "results/advanced/z3_version.log",
+            ],
+            "verilator_version": "results/advanced/verilator_version.log",
+            "verilator_coverage_version": "results/advanced/coverage_tool_version.log",
+            "z3_version": "results/advanced/z3_version.log",
+            "feature_probe": [
+                "results/advanced/build_feature_probe.log",
+                "results/advanced/feature_probe.log",
+            ],
+            "oop_crv": [
+                "results/advanced/build_oop.log",
+                "results/advanced/oop_seed_a.log",
+                "results/advanced/oop_seed_b.log",
+            ],
+            "native_coverage": [
+                "results/advanced/build_coverage.log",
+                "results/advanced/coverage.log",
+                "results/advanced/native_coverage_report.log",
+                "results/advanced/native-coverage-summary.txt",
+            ],
+            "negative_control": [
+                "results/advanced/build_negative_control.log",
+                "results/advanced/negative_control.log",
+            ],
+            "summary": [
+                "results/advanced/summary.json",
+                "results/advanced/summary.txt",
+            ],
+        },
+        "completed_stages": [],
+    }
+
+    def write_report() -> None:
+        (OUT / "summary.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+
+    stage = "preflight"
+    try:
+        write_report()
+        tool_args = {
+            "verilator": ["--version"],
+            "verilator_coverage": ["--version"],
+            "z3": ["--version"],
+        }
+        version_logs = {
+            "verilator": OUT / "verilator_version.log",
+            "verilator_coverage": OUT / "coverage_tool_version.log",
+            "z3": OUT / "z3_version.log",
+        }
+        for tool, tool_options in tool_args.items():
+            path = shutil.which(tool)
+            details = {"available": path is not None, "path": path, "version": None}
+            report["preflight"][tool] = details
+            if path is not None:
+                try:
+                    result = subprocess.run(
+                        [path, *tool_options], cwd=ROOT, text=True,
+                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                        timeout=15, check=False,
+                    )
+                except (OSError, subprocess.TimeoutExpired) as exc:
+                    details["error"] = str(exc)
+                    version_logs[tool].write_text(f"ERROR: {exc}\n", encoding="utf-8")
+                else:
+                    details["version"] = result.stdout.strip()
+                    details["version_exit_code"] = result.returncode
+                    report["tool_versions"][tool] = details["version"]
+                    version_logs[tool].write_text(
+                        result.stdout + ("" if result.stdout.endswith("\n") else "\n"),
+                        encoding="utf-8",
+                    )
+            else:
+                version_logs[tool].write_text(
+                    f"NOT AVAILABLE: required executable '{tool}' was not found on PATH.\n",
+                    encoding="utf-8",
+                )
+            write_report()
+
+        (OUT / "tool-versions.txt").write_text(
+            "\n".join(
+                report["tool_versions"].get(tool, "NOT AVAILABLE")
+                for tool in tool_args
+            ) + "\n",
+            encoding="utf-8",
+        )
+        missing = [
+            tool for tool, details in report["preflight"].items()
+            if not details["available"]
+        ]
+        if missing:
+            report.update(
+                status="NOT_RUN",
+                exit_code=2,
+                error=f"Required executable(s) unavailable: {', '.join(missing)}",
+            )
+            (OUT / "summary.txt").write_text(
+                f"ADVANCED NOT RUN\nStage: preflight\nExit code: 2\n{report['error']}\n",
+                encoding="utf-8",
+            )
+            write_report()
+            print(f"ADVANCED NOT RUN: {report['error']}", file=sys.stderr)
             return 2
 
-    OUT.mkdir(parents=True, exist_ok=True)
-    version = record_run("verilator_version", ["verilator", "--version"]).stdout.strip()
-    coverage_version = record_run("coverage_tool_version", ["verilator_coverage", "--version"]).stdout.strip()
-    z3_version = record_run("z3_version", ["z3", "--version"]).stdout.strip()
-    (OUT / "tool-versions.txt").write_text(
-        f"{version}\n{coverage_version}\n{z3_version}\n", encoding="utf-8"
-    )
-    if not re.search(rf"\b{re.escape(EXPECTED_VERILATOR)}\b", version):
-        raise AdvancedRunError(f"requires Verilator {EXPECTED_VERILATOR}; found: {version}")
-    if not re.search(rf"\b{re.escape(EXPECTED_Z3)}\b", z3_version):
-        raise AdvancedRunError(f"requires Z3 {EXPECTED_Z3}; found: {z3_version}")
+        failed_versions = [
+            tool for tool, details in report["preflight"].items()
+            if details.get("version_exit_code") != 0
+        ]
+        if failed_versions:
+            raise AdvancedRunError(
+                f"Version preflight failed for: {', '.join(failed_versions)}"
+            )
 
-    probe = build("feature_probe", "tb_advanced_feature_probe", ["tb/tb_advanced_feature_probe.sv"])
-    probe_log = simulate("feature_probe", probe, count=1, seed=args.seed)
-    if "FEATURE_PROBE PASS randomize=32 native_covergroup=100.00%" not in probe_log:
-        raise AdvancedRunError("native constraint/covergroup capability probe did not report full success")
+        version = report["preflight"]["verilator"]["version"]
+        coverage_version = report["preflight"]["verilator_coverage"]["version"]
+        z3_version = report["preflight"]["z3"]["version"]
+        if not re.search(rf"\b{re.escape(EXPECTED_VERILATOR)}\b", version):
+            raise AdvancedRunError(f"requires Verilator {EXPECTED_VERILATOR}; found: {version}")
+        if not re.search(rf"\b{re.escape(EXPECTED_Z3)}\b", z3_version):
+            raise AdvancedRunError(f"requires Z3 {EXPECTED_Z3}; found: {z3_version}")
+        report["completed_stages"].append("preflight")
 
-    sources = ["rtl/alu_8bit.sv", "tb/tb_alu_oop.sv"]
-    oop = build("oop", "tb_alu_oop", sources)
-    first = simulate("oop_seed_a", oop, count=args.count, seed=args.seed)
-    second = simulate("oop_seed_b", oop, count=args.count, seed=args.seed)
-    lines_a, lines_b = stimulus_lines(first), stimulus_lines(second)
-    if len(lines_a) != args.count or lines_a != lines_b:
-        raise AdvancedRunError("same-seed stimulus did not reproduce exactly")
-    expected_summary = f"VERIFICATION SUMMARY total={args.count} passed={args.count} failed=0 seed={args.seed}"
-    if expected_summary not in first or "Status: PASS" not in first:
-        raise AdvancedRunError("OOP run did not complete every scoreboard check")
-    distribution = check_weighted_distribution(first, args.count)
+        stage = "feature_probe"
+        report["stage"] = stage
+        write_report()
+        probe = build("feature_probe", "tb_advanced_feature_probe", ["tb/tb_advanced_feature_probe.sv"])
+        probe_log = simulate("feature_probe", probe, count=1, seed=args.seed)
+        if "FEATURE_PROBE PASS randomize=32 native_covergroup=100.00%" not in probe_log:
+            raise AdvancedRunError("native constraint/covergroup capability probe did not report full success")
+        report["completed_stages"].append(stage)
 
-    coverage = build("coverage", "tb_alu_coverage", ["rtl/alu_8bit.sv", "tb/tb_alu_coverage.sv"])
-    cov_path = OUT / "native-coverage.dat"
-    coverage_log = simulate("coverage", coverage, count=args.count, seed=args.seed,
-                            coverage_file=cov_path)
-    match = re.search(r"Native covergroup coverage \(separate metric\): ([0-9.]+)%", coverage_log)
-    if not match or float(match.group(1)) < 100.0:
-        raise AdvancedRunError("required native opcode/operand cross bins did not all reach 100%")
-    if expected_summary not in coverage_log or "Status: PASS" not in coverage_log:
-        raise AdvancedRunError("coverage wrapper did not complete every checked transaction")
-    coverage_report = record_run(
-        "native_coverage_report", ["verilator_coverage", "--report", "summary", str(cov_path)]
-    ).stdout
-    (OUT / "native-coverage-summary.txt").write_text(coverage_report, encoding="utf-8")
-    if not re.search(r"covergroup", coverage_report, flags=re.IGNORECASE):
-        raise AdvancedRunError("verilator_coverage report contains no native covergroup rows")
+        stage = "oop_crv"
+        report["stage"] = stage
+        write_report()
+        sources = ["rtl/alu_8bit.sv", "tb/tb_alu_oop.sv"]
+        oop = build("oop", "tb_alu_oop", sources)
+        first = simulate("oop_seed_a", oop, count=args.count, seed=args.seed)
+        second = simulate("oop_seed_b", oop, count=args.count, seed=args.seed)
+        lines_a, lines_b = stimulus_lines(first), stimulus_lines(second)
+        if len(lines_a) != args.count or lines_a != lines_b:
+            raise AdvancedRunError("same-seed stimulus did not reproduce exactly")
+        expected_summary = f"VERIFICATION SUMMARY total={args.count} passed={args.count} failed=0 seed={args.seed}"
+        if expected_summary not in first or "Status: PASS" not in first:
+            raise AdvancedRunError("OOP run did not complete every scoreboard check")
+        distribution = check_weighted_distribution(first, args.count)
+        report["completed_stages"].append(stage)
 
-    faulty = build("negative_control", "tb_alu_oop",
-                   ["rtl/alu_8bit.sv", "tb/alu_8bit_faulty.sv", "tb/tb_alu_oop.sv"],
-                   negative=True)
-    fault_log = simulate("negative_control", faulty, count=8, seed=args.seed,
-                         expected_success=False)
-    if "MISMATCH" not in fault_log or "Status: FAIL" not in fault_log:
-        raise AdvancedRunError("faulty ALU did not reach and fail the independent scoreboard")
+        stage = "native_coverage"
+        report["stage"] = stage
+        write_report()
+        coverage = build("coverage", "tb_alu_coverage", ["rtl/alu_8bit.sv", "tb/tb_alu_coverage.sv"])
+        cov_path = OUT / "native-coverage.dat"
+        coverage_log = simulate("coverage", coverage, count=args.count, seed=args.seed,
+                                coverage_file=cov_path)
+        match = re.search(r"Native covergroup coverage \(separate metric\): ([0-9.]+)%", coverage_log)
+        if not match or float(match.group(1)) < 100.0:
+            raise AdvancedRunError("required native opcode/operand cross bins did not all reach 100%")
+        if expected_summary not in coverage_log or "Status: PASS" not in coverage_log:
+            raise AdvancedRunError("coverage wrapper did not complete every checked transaction")
+        coverage_report = record_run(
+            "native_coverage_report", ["verilator_coverage", "--report", "summary", str(cov_path)]
+        ).stdout
+        (OUT / "native-coverage-summary.txt").write_text(coverage_report, encoding="utf-8")
+        if not re.search(r"covergroup", coverage_report, flags=re.IGNORECASE):
+            raise AdvancedRunError("verilator_coverage report contains no native covergroup rows")
+        report["completed_stages"].append(stage)
 
-    summary = (
-        f"ADVANCED SUITE PASS\nVerilator: {version}\nSeed: {args.seed}\nTransactions: {args.count}\n"
-        f"Same-seed reproducibility: PASS ({len(lines_a)} stimuli compared)\n"
-        f"Native CRV distribution counts: {distribution}\n"
-        f"Native covergroup API: {float(match.group(1)):.2f}%\n"
-        "Coverage report: results/advanced/native-coverage-summary.txt\n"
-        "Negative control: PASS (faulty ADD rejected by scoreboard)\n"
-    )
-    (OUT / "summary.txt").write_text(summary, encoding="utf-8")
-    print(summary, end="")
-    return 0
+        stage = "negative_control"
+        report["stage"] = stage
+        write_report()
+        faulty = build("negative_control", "tb_alu_oop",
+                       ["rtl/alu_8bit.sv", "tb/alu_8bit_faulty.sv", "tb/tb_alu_oop.sv"],
+                       negative=True)
+        fault_log = simulate("negative_control", faulty, count=8, seed=args.seed,
+                             expected_success=False)
+        if "MISMATCH" not in fault_log or "Status: FAIL" not in fault_log:
+            raise AdvancedRunError("faulty ALU did not reach and fail the independent scoreboard")
+        report["completed_stages"].append(stage)
+
+        summary = (
+            f"ADVANCED SUITE PASS\nVerilator: {version}\nSeed: {args.seed}\nTransactions: {args.count}\n"
+            f"Same-seed reproducibility: PASS ({len(lines_a)} stimuli compared)\n"
+            f"Native CRV distribution counts: {distribution}\n"
+            f"Native covergroup API: {float(match.group(1)):.2f}%\n"
+            "Coverage report: results/advanced/native-coverage-summary.txt\n"
+            "Negative control: PASS (faulty ADD rejected by scoreboard)\n"
+        )
+        (OUT / "summary.txt").write_text(summary, encoding="utf-8")
+        report.update(status="PASS", stage="complete", exit_code=0)
+        write_report()
+        print(summary, end="")
+        return 0
+    except (AdvancedRunError, subprocess.TimeoutExpired, OSError) as exc:
+        report.update(status="FAIL", stage=stage, exit_code=1, error=str(exc))
+        (OUT / "summary.txt").write_text(
+            f"ADVANCED FAIL\nStage: {stage}\nExit code: 1\nError: {exc}\n",
+            encoding="utf-8",
+        )
+        write_report()
+        print(f"ADVANCED FAIL at {stage}: {exc}", file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":
