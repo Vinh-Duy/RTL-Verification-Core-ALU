@@ -5,13 +5,22 @@ permissions:
 jobs:
   formal:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
-      - name: Install Yosys SAT engine
-        run: sudo apt-get update && sudo apt-get install -y yosys
+      - name: Install formal and replay tools
+        run: sudo apt-get update && sudo apt-get install -y yosys iverilog
       - name: Prove ALU equivalence and reject faulty control
         run: make formal
+      - name: Run formal-derived semantic mutation audit
+        run: make formal-mutation
+      - name: Preserve formal mutation evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: formal-mutation-evidence
+          path: results/formal_mutation/
+          if-no-files-found: warn
       - name: Preserve formal proof logs and counterexample
         if: always()
         uses: actions/upload-artifact@v7

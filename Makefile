@@ -2,9 +2,10 @@ PYTHON ?= python3
 SEED ?= 2026
 COUNT ?= 1000
 TIMEOUT ?= 120
+FORMAL_TIMEOUT ?= 60
 RUN = $(PYTHON) -m verification.run --seed $(SEED) --count $(COUNT) --timeout $(TIMEOUT)
 
-.PHONY: lint test test-random coverage regression mutation exhaustive waveform formal clean unit examples advanced
+.PHONY: lint test test-random coverage regression mutation exhaustive waveform formal formal-mutation clean unit examples advanced
 lint:
 	$(RUN) --mode lint --output results/lint-run
 unit:
@@ -26,6 +27,8 @@ waveform:
 	$(RUN) --mode directed --output results/waveform --wave
 formal:
 	$(PYTHON) formal/run_formal.py
+formal-mutation:
+	$(PYTHON) formal/mutation_audit.py --timeout $(FORMAL_TIMEOUT)
 advanced:
 	$(PYTHON) scripts/run_advanced.py --seed $(SEED) --count $(COUNT)
 examples:

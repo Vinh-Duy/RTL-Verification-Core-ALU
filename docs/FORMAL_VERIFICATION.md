@@ -49,6 +49,14 @@ The repository's current local environment has Python 3.10.11 and Icarus Verilog
 these changes (16 Python tests and the portable suite, including 1,333 closed-suite
 transactions on each run). Formal proof remains **NOT RUN locally**.
 
+The separate [formal-derived semantic mutation audit](FORMAL_MUTATION_AUDIT.md)
+adds `make formal-mutation`. It reruns the correct-DUT baseline, generates
+single-operation mutants in isolated result folders, and validates SAT witnesses
+with the Python reference model and Icarus replay. Its evidence is uploaded
+separately from `formal-evidence`; it does not change the existing proof or
+portable mutation suite. Local campaign execution remains **NOT RUN** when Yosys
+is unavailable.
+
 GitHub Actions [run #4](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/40522416479)
 passed for commit `68a0f9ffde37e0e6964a4922e9d7a1c3e77fe214` on Ubuntu 24.04.
 The `formal` job installed Yosys, ran `make formal`, and uploaded `formal-evidence`.
