@@ -15,6 +15,9 @@ the production baseline and each generated DUT separately, and queries whether
 the mutant's complete 16-bit result differs from the specification over all
 2^19 known-binary input combinations. There are no assumptions. X/Z behavior is
 outside this two-state experiment.
+The audited production RTL, formal spec, and miter are fingerprint-pinned.
+Intentional source changes require review and an explicit update to those
+fingerprints; otherwise the campaign stops before running mutants.
 
 The selected faults are ADD carry truncation, SUB truncation to eight bits, MUL
 truncation to eight bits, a wrong DIV zero result, ceiling instead of floor DIV,
@@ -45,6 +48,10 @@ and Icarus replay outputs. The report records tools, source hashes, campaign
 metadata, per-mutant classification, and aggregate counts.
 It captures Python, Yosys, Icarus compiler, and Icarus runtime versions, with
 the tool version command output retained in separate logs.
+CI runs the campaign twice under the same tool installation and compares source
+and generated-mutant hashes, tool versions, classifications, and validated
+counterexamples. SAT assignments may differ between runs; equality of the
+specific counterexample inputs is recorded but not required.
 
 ## Reproduction and evidence
 
@@ -56,8 +63,9 @@ make formal-mutation
 ```
 
 The GitHub Actions formal job installs both tools, runs the existing formal
-baseline first, then runs the mutation campaign and uploads the separate
-`formal-mutation-evidence` artifact. The existing portable functional coverage
+baseline first, then runs two mutation campaigns and uploads the separate
+`formal-mutation-evidence` artifact. Missing evidence is an upload error. The
+existing portable functional coverage
 (142 custom bins) and advanced native SystemVerilog covergroup coverage remain
 separate metrics.
 

@@ -13,14 +13,14 @@ jobs:
       - name: Prove ALU equivalence and reject faulty control
         run: make formal
       - name: Run formal-derived semantic mutation audit
-        run: make formal-mutation
+        run: make formal-mutation FORMAL_REPEAT=2
       - name: Preserve formal mutation evidence
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: formal-mutation-evidence
           path: results/formal_mutation/
-          if-no-files-found: warn
+          if-no-files-found: error
       - name: Preserve formal proof logs and counterexample
         if: always()
         uses: actions/upload-artifact@v7
