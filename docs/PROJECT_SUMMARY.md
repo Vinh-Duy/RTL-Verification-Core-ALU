@@ -54,13 +54,13 @@ local numerical measurements; detailed CI artifacts were not independently inspe
 
 ## E. Limitations
 
-OOP/native covergroups remain **NOT RUN — Requires a compatible SystemVerilog
-simulator**. A Yosys combinational SAT flow has been added. Its proof and negative
-control passed in GitHub Actions run #4; local execution is **NOT RUN** because
-Yosys is unavailable. The Node.js
-24 action-major update has not yet run on GitHub. Local Verilator and interactive
-GTKWave viewing remain unexecuted. There is no synthesis, gate-level timing,
-physical implementation, code/native assertion coverage or exhaustive X/Z result.
+OOP/native covergroups remain **NOT RUN locally — Requires a compatible
+SystemVerilog simulator**. The pinned Verilator 5.052 suite passed remotely in
+[run 41591123907](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/41591123907).
+A Yosys combinational SAT flow also passed in that run; local execution remains
+**NOT RUN** because Yosys is unavailable. Local Verilator and interactive GTKWave
+viewing remain unexecuted. There is no synthesis, gate-level timing, physical
+implementation, code/native assertion coverage or exhaustive X/Z result.
 No faculty supervision, publication or industry employment is implied.
 
 ## F. Two-line CV description

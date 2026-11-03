@@ -1,253 +1,183 @@
-# RTL Design and Verification of an 8-bit ALU
+# RTL Verification Core ALU
 
-**Independent Digital Hardware Engineering Project**
+**Independent digital hardware verification engineering project**
 
-## 1. Overview
+This repository implements an unsigned combinational 8-bit ALU with eight
+operations and a 16-bit result. The engineering focus is not the size of the
+RTL; it is the design of independent, failure-propagating verification layers
+that can distinguish correct behavior from an incomplete test, a faulty DUT, or
+a broken verification tool.
 
-An unsigned combinational 8-bit ALU with eight operations and a 16-bit result,
-developed to study arithmetic width, simulation scheduling and reliable checking.
-The implementation includes the RTL, an independent Python reference model,
-portable SystemVerilog tests, reproducible random stimulus and a custom functional
-coverage collector. Icarus Verilog and Python's standard library run the baseline.
+## What is implemented
 
-Recorded local evidence includes 116 directed transactions, all 524,288 known
-binary ALU input combinations, mutation rejection and 142/142 bins in the defined
-functional coverage plan. [Measured results](docs/RESULTS.md) distinguish the
-original experiments, successful GitHub runs and the fresh
-[final review](docs/FINAL_REVIEW.md). The adder and flat/OOP examples preserve the
-project's educational progression.
+The DUT accepts unsigned `A[7:0]`, `B[7:0]`, and `opcode[2:0]`, and produces
+`result[15:0]`. The eight operations are:
 
-The advanced OOP/CRV/native-covergroup suite now has a dedicated `make advanced`
-target and CI job pinned to Verilator 5.052. The local machine lacks Verilator and
-Z3, so this revision's advanced result remains **NOT RUN locally** until the
-workflow executes. See [advanced suite status and evidence](docs/ADVANCED_SUITE.md).
-
-## 2. Motivation
-
-The project explores arithmetic widths, simulation scheduling, trustworthy
-scoreboards and measurable testing. It is an independent undergraduate engineering
-project, not a tapeout verification platform. The separate
-[EDA routing project](https://github.com/Vinh-Duy/EDA_Routing_Algorithm) explores
-algorithms and experimental validation; the two repositories remain independent.
-
-## 3. ALU Specification
-
-Inputs are unsigned 8-bit A/B and a 3-bit opcode; result is 16 bits. There is no
-clock or state. Full details, including X/Z behavior, are in the
-[specification](docs/ALU_SPECIFICATION.md). Explicit-width RTL preserves the original
-known-input behavior. The original and revised ALUs each passed an exhaustive
-known-input simulation against the documented model.
-
-## 4. Supported Operations
-
-| Opcode | Name | Result |
+| Opcode | Operation | Defined behavior |
 |---|---|---|
-| 000 | ADD | A+B; carry retained |
-| 001 | SUB | (A−B) mod 65536 |
-| 010 | MUL | Full 8×8 product |
-| 011 | DIV | Floor(A/B), or zero when B=0 |
-| 100 | AND | Zero-extended bitwise AND |
-| 101 | OR | Zero-extended bitwise OR |
-| 110 | XOR | Zero-extended bitwise XOR |
-| 111 | SHL | A shifted left by B[2:0], with a 16-bit result |
+| `000` | ADD | 16-bit sum, including carry |
+| `001` | SUB | Unsigned subtraction modulo 65536 |
+| `010` | MUL | Full 8 x 8 product |
+| `011` | DIV | Floor division; zero when `B == 0` |
+| `100` | AND | Zero-extended bitwise AND |
+| `101` | OR | Zero-extended bitwise OR |
+| `110` | XOR | Zero-extended bitwise XOR |
+| `111` | SHL | `A` shifted by `B[2:0]`, with a 16-bit result |
 
-## 5. Verification Architecture
+The complete behavioral contract is documented in
+[ALU_SPECIFICATION.md](docs/ALU_SPECIFICATION.md).
 
-Python model and stimulus → vector file → sequential SV driver/checker → result
-CSV → Python result validation and custom coverage → JSON summaries.
+## Key measured results
 
-The bridge checks transaction IDs/counts, rejects unknown outputs, checks stable
-results, and returns failure through `$fatal` and the runner exit code. Simulation
-and subprocess watchdogs bound execution. A 1 ns settling interval permits
-zero-delay RTL evaluation; it does not represent measured hardware latency.
+These results come from separate local experiments and GitHub Actions
+artifacts; they are not one combined test count.
 
-The flat bench makes sequential self-checking easy to inspect. The OOP examples
-teach separation of generator, driver, monitor, scoreboard and coverage. Their
-bounded mailbox completion/acknowledgment path replaces independent `#4/#5` loops.
-See [advanced suite status and commands](docs/ADVANCED_SUITE.md).
+| Measurement | Result |
+|---|---:|
+| Known-binary input combinations exhaustively simulated | 524,288; 0 failures |
+| Python custom functional coverage | 142/142 bins |
+| Advanced OOP/CRV transactions | 4,096 |
+| Native SystemVerilog covergroup coverage | 80/80 bins (100%) |
+| Formal-derived semantic mutants | 7/7 killed |
+| Independently validated formal counterexamples | 7/7 |
+| Phase 3 adversarial infrastructure tests | 42 Python tests, including 26 formal-mutation tests |
 
-## 6. Directed and Random Testing
+The 142-bin Python plan and the native SystemVerilog covergroup are different
+metrics. Exhaustive simulation is also distinct from a SAT proof.
 
-Thirty-two literal known answers underpin a 116-transaction directed suite.
-It covers boundaries, division zero/remainder, subtraction wrap, full products,
-ignored shift bits, repeated inputs and changing opcodes. Random operands use a
-35% boundary-pool / 65% uniform mixture; opcodes cycle evenly through all eight.
-Seeds and counts are configurable and logged. Sixty metamorphic checks exercise
-DUT algebraic relationships. A separate bench checks ten selected X/Z cases.
+## Verification architecture
 
-## 7. Functional Coverage
+```mermaid
+flowchart LR
+    RTL[Production RTL<br/>rtl/alu_8bit.sv]
+    REF[Independent Python<br/>verification/model.py]
+    SIM[Portable SV bridge<br/>vector driver and checker]
+    COV[Python custom coverage<br/>142 defined bins]
+    ADV[Advanced OOP/CRV<br/>generator driver monitor scoreboard]
+    NATIVE[Native covergroups<br/>Verilator coverage]
+    SPEC[Formal specification<br/>formal/alu_spec.sv]
+    MITER[Equivalence miter<br/>formal/alu_miter.sv]
+    MUT[Validated mutant generator<br/>seven semantic faults]
+    SAT[Yosys SAT<br/>counterexample VCD]
+    REPLAY[Python validation<br/>Icarus replay]
+    CI[GitHub Actions<br/>logs and artifacts]
 
-The [142-bin plan](docs/COVERAGE_PLAN.md) measures opcodes, operand categories,
-relationships, arithmetic edges and useful crosses. Coverage samples only returned,
-checked, matching transactions. Reports list every uncovered bin. A dedicated
-closure phase exercises missing scenarios without changing the denominator.
-This is **custom functional coverage**, not code coverage or native covergroup
-coverage. The transaction pass rate and exhaustive input count are separate metrics.
-
-## 8. Verification Results
-
-### Formal equivalence status
-
-An independent Yosys SAT miter is available through `make formal`. It is set up to
-compare all 16 result bits for every known binary input combination and to require
-a counterexample for a carry-truncating ADD fault. Formal results remain separate
-from simulation coverage. Yosys is unavailable locally, so the proof is **NOT RUN**
-on this machine. GitHub Actions run #4 passed for commit `68a0f9f`, including the
-formal job. See the
-[formal verification notes](docs/FORMAL_VERIFICATION.md) for exact scope and limits.
-
-The table preserves the original local measurements. Fresh checks and their source
-hashes are recorded separately in the [final review](docs/FINAL_REVIEW.md).
-
-<!-- measured-results:start -->
-| Local executed check | Local measured result |
-|---|---|
-| Directed ALU suite | 116 checked, 116 passed |
-| Standard closed suite | 1,333 checked, 1,333 passed; seed 2026 |
-| Custom functional coverage | 138/142 (97.18%) before → 142/142 (100.00%) after closure |
-| Exhaustive ALU | 524,288 checked, all passed; 24.183 s |
-| Adder example | 65,558 passed, including all 65,536 input pairs |
-| Verifier tests | 16 unit/integration tests passed; ADD and X-output mutants rejected |
-| Advanced OOP / native covergroups | NOT RUN |
-<!-- measured-results:end -->
-
-GitHub Actions [run #1](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/38939887081) passed for `cdc8e24`, and
-[run #2](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/38943467205) passed for `1621da9`. Both cover the portable regression,
-exhaustive simulation, waveform and artifact-upload steps. They do not execute the
-advanced OOP/native-covergroup suite. The pending action-version upgrade has **NOT
-RUN** on GitHub. See the [CI evidence scope](docs/RESULTS.md#github-actions-verification-separate-from-local-experiments).
-
-See [full measured results](docs/RESULTS.md), [technical report](docs/VERIFICATION_REPORT.md)
-and [machine-readable evidence](docs/evidence/final.json) for environments, runtimes,
-counts, negative tests, source hashes and limitations. Exhaustive simulation checks
-all 524,288 known-input combinations; it is not formal or physical verification.
-
-## 9. Repository Structure
-
-```text
-rtl/                 ALU and original educational adder
-tb/                 flat, vector, X/Z and shared OOP benches
-verification/       Python model, stimuli, coverage, runner and literal answers
-tests/              oracle, coverage and failure-propagation tests
-scripts/            measured-result exporter
-docs/               audit, specification, coverage plan and reports
-docs/evidence/      compact executed evidence snapshots
-.github/workflows/  portable CI configuration
-results/            generated logs, CSV, JSON, waveforms and isolated mutants (ignored)
+    REF --> SIM
+    SIM --> RTL
+    SIM --> COV
+    ADV --> RTL
+    ADV --> NATIVE
+    SPEC --> MITER
+    RTL --> MITER
+    RTL --> MUT
+    MUT --> SAT
+    SPEC --> SAT
+    SAT --> REPLAY
+    REPLAY --> REF
+    SIM --> CI
+    ADV --> CI
+    SAT --> CI
 ```
 
-## 10. Installation
+Verification layers have different purposes:
 
-Use Python >=3.10,<3.15 and Icarus Verilog (locally tested with 13.0; CI targets the
-Ubuntu-packaged version). There are no pip dependencies; `requirements.txt` records
-this intentionally. Verilator is optional locally and installed in CI for lint.
+1. The Python reference model supplies an independently written expected result.
+2. Directed, seeded-random, metamorphic, and exhaustive simulation exercise the
+   portable checker and the DUT.
+3. Custom functional coverage measures selected reachable scenarios; it is not
+   code coverage.
+4. The advanced SystemVerilog environment tests class-based generator, driver,
+   monitor, scoreboard, mailbox synchronization, constraints, and native
+   covergroups. It is an educational OOP environment, not UVM.
+5. The formal miter compares all 16 result bits over the two-state known-binary
+   input domain.
+6. The mutation audit tests whether the formal, Python, and Icarus layers detect
+   seven deliberate semantic faults.
+7. The adversarial audit tests whether the infrastructure itself can fail closed
+   rather than report success for missing or invalid evidence.
+
+## Getting started
+
+The portable flow requires Python 3.10--3.14, GNU Make, and Icarus Verilog.
+There are no Python package dependencies. Verilator, Yosys, and Z3 are needed
+for additional targets.
 
 ```sh
-# macOS, with Homebrew already installed
+# macOS with Homebrew
 brew install icarus-verilog verilator python@3.12
 
-# Ubuntu / Debian
+# Ubuntu/Debian
 sudo apt-get update
-sudo apt-get install -y iverilog verilator python3 make
+sudo apt-get install -y iverilog verilator yosys make python3
 ```
 
-For the versioned Homebrew Python, use `make PYTHON=python3.12 regression`, or
-activate a virtual environment created with `python3.12 -m venv .venv`.
-The [Homebrew Python 3.12 formula](https://formulae.brew.sh/formula/python@3.12)
-provides the versioned executable. An existing supported Python also works.
-
-GTKWave is optional. Install a distribution compatible with your OS using the
-[GTKWave project](https://gtkwave.github.io/gtkwave/). Its executable is present on
-the development machine; interactive viewing was not validated here. cocotb was
-considered but is not required for this small file-vector flow. A missing Icarus
-executable produces an explicit error and nonzero status.
-
-## 11. Quick Start
+Available Make targets:
 
 ```sh
-make test             # Python checks, directed ALU, adder, flat and X/Z examples
-make regression       # lint/elaboration, random, coverage, properties, mutations, replay
-make advanced SEED=2026 COUNT=4096  # native OOP/CRV/covergroups and fault control
-```
-
-## 12. Running Regression Tests
-
-```sh
-make lint
-make test-random SEED=2026 COUNT=100       # smoke random
-make test-random SEED=2026 COUNT=1000      # standard random
-make test-random SEED=2026 COUNT=10000     # extended random
+make unit
+make regression SEED=2026 COUNT=1000
+make exhaustive
 make coverage SEED=2026 COUNT=1000
 make mutation
-make exhaustive                          # all 524,288 known-input ALU combinations
-make regression SEED=2027 COUNT=1000 TIMEOUT=300
-make clean                               # removes only generated build/ and results/
-```
-
-Make targets call `python3 -m verification.run`; `PYTHON` can override the interpreter.
-Reports are under `results/<target>/`, with per-simulation `test_results.csv`,
-`simulator.log`, `coverage_summary.json`, `uncovered_bins.txt` and
-`regression_summary.json`. The regression reports real counts and verifies identical
-stimulus/results for a repeated seed. Mutation logs intentionally show failed DUT
-runs; the mutation test passes only when those faulty DUTs are rejected.
-
-`make lint` uses Icarus warning-enabled elaboration and also runs Verilator when
-available. It clearly reports unavailable Verilator; Icarus elaboration is not
-represented as an equivalent lint tool. CI fails on either tool's failure and
-uploads evidence even if a later test fails. Runs #1 (`cdc8e24`) and #2 (`1621da9`)
-succeeded with the previous action versions; the v7 action update still requires
-its own GitHub run. See [measured results](docs/RESULTS.md) for exact
-commands to regenerate the evidence snapshot and tables.
-
-## 13. Waveform Visualization
-
-```sh
+make formal
+make formal-mutation FORMAL_REPEAT=2
+make advanced SEED=2026 COUNT=4096
 make waveform
-gtkwave results/waveform/directed/waveform.vcd
+make clean
 ```
 
-This real simulation includes operand/opcode changes, carry, subtraction wrap,
-full-width multiplication and shift boundaries. Add A, B, opcode and result, set
-hexadecimal/unsigned radix and zoom to the first 64 ns for literal known answers.
-Capture an image manually from GTKWave if needed; no screenshot is fabricated.
-VCD files and simulation executables are ignored. Exhaustive runs omit VCD by default.
+`make advanced` specifically expects Verilator 5.052 and Z3 4.8.12, matching
+the pinned CI environment. The advanced suite is validated remotely in
+GitHub Actions; the development machine used for the local portable evidence
+does not provide Yosys, Verilator, or Z3. Generated output is written below
+`results/`, which is ignored by Git.
 
-The standalone flat example is also available:
+## Evidence
 
-```sh
-mkdir -p build results/manual
-iverilog -g2012 -Wall -Itb -s tb_alu_flat -o build/alu_flat rtl/alu_8bit.sv tb/tb_alu_flat.sv
-vvp build/alu_flat +SEED=2026 +COUNT=100 +WAVE=results/manual/alu.vcd
+- [Evidence index](docs/EVIDENCE_INDEX.md) maps phase results to exact commits,
+  jobs, artifacts, and reproducibility limits.
+- [Engineering case study](docs/ENGINEERING_CASE_STUDY.md) explains the
+  architecture, decisions, audits, results, and threats to validity.
+- [Portfolio description](docs/PORTFOLIO_DESCRIPTION.md) contains reusable CV
+  text and interview questions.
+- [Measured local results](docs/RESULTS.md) preserve portable execution data.
+- [Formal verification notes](docs/FORMAL_VERIFICATION.md) define the proof
+  domain and SAT negative control.
+- [Formal mutation audit](docs/FORMAL_MUTATION_AUDIT.md) describes the seven
+  fault models and independent counterexample validation.
+- [Advanced suite](docs/ADVANCED_SUITE.md) describes the OOP/CRV and native
+  coverage checks.
+
+The most complete published validation is GitHub Actions
+[run #10](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/41591123907)
+for commit `bced75a`. It passed formal, portable, and advanced jobs. Artifact
+retention is controlled by GitHub; use the run page's **Artifacts** section to
+download the evidence rather than relying on permanent artifact URLs.
+
+## Limitations
+
+- This is a small combinational 8-bit design, not a commercial IP sign-off
+  platform.
+- Formal equivalence covers the stated two-state known-binary domain. It does
+  not establish four-state X/Z semantics.
+- Seven selected mutants do not constitute exhaustive mutation coverage.
+- Advanced simulator execution was validated in Ubuntu GitHub Actions, not in
+  the local portable environment.
+- No synthesis, PPA, timing, physical-design, silicon, or industry
+  certification results are claimed.
+- A correct result can still reflect an incorrect shared specification; literal
+  answers, properties, and multiple checking layers reduce but do not eliminate
+  that risk.
+
+## Repository map
+
+```text
+rtl/                 Production ALU and educational adder
+formal/              Specification, miter, proof runner, mutation audit
+tb/                  Portable, four-state, vector, and advanced benches
+verification/        Python model, stimuli, coverage, and runner
+tests/               Unit and failure-propagation tests
+scripts/             Advanced runner and evidence exporter
+docs/                Specification, reports, case study, and evidence index
+.github/workflows/   Formal, portable, and advanced CI jobs
 ```
-
-## 14. Technical Documentation
-
-- [Initial audit and corrections](docs/AUDIT.md)
-- [ALU specification](docs/ALU_SPECIFICATION.md)
-- [Coverage plan](docs/COVERAGE_PLAN.md)
-- [Verification report](docs/VERIFICATION_REPORT.md)
-- [Measured results](docs/RESULTS.md)
-- [Advanced suite](docs/ADVANCED_SUITE.md)
-- [Application summary and interview preparation](docs/PROJECT_SUMMARY.md)
-- [Final engineering review and fresh execution](docs/FINAL_REVIEW.md)
-- [Formal verification notes](docs/FORMAL_VERIFICATION.md)
-
-Tool references: [Icarus command-line options](https://steveicarus.github.io/iverilog/usage/command_line_flags.html)
-and [Verilator lint options](https://verilator.org/guide/latest/exe_verilator.html).
-
-## 15. Limitations
-
-The advanced suite and its new CI job have not yet run on this revision; no native
-covergroup result is claimed. The portable GitHub Actions run passed with Verilator
-installed for lint, but that was not an OOP simulation. No synthesis, physical
-timing or code coverage is claimed. The formal miter passed in CI run #4; it
-remains **NOT RUN** on this machine because Yosys is unavailable. X/Z tests cover
-selected semantics, not all four-state combinations.
-Measured evidence applies to the recorded sources and input contract only.
-
-## 16. Future Work
-
-Run the advanced job on GitHub and review its uploaded simulator/coverage
-artifacts; validate the pending action-runtime upgrade, and consider a separately
-scoped synthesis/timing experiment. Keep the design small and understandable;
-UVM migration and extra hardware blocks are outside this revision's scope.

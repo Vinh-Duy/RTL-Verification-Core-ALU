@@ -69,8 +69,11 @@ existing portable functional coverage
 (142 custom bins) and advanced native SystemVerilog covergroup coverage remain
 separate metrics.
 
-Campaign execution has not yet been claimed as complete until its actual
-`summary.json`, per-mutant logs, counterexample validation, and uploaded CI
-artifact have been inspected. This seven-mutant sample evaluates these selected
-fault models only; it does not establish complete specification or verification
-coverage and is not a novel formal algorithm.
+The campaign was executed in the formal CI job and its machine-readable evidence
+was preserved in the `formal-mutation-evidence` artifact. The final
+pre-portfolio validation is
+[run 41591123907](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/41591123907)
+for commit `bced75a`; the formal job passed both repeated campaigns. The
+seven-mutant sample evaluates selected fault models only; it does not establish
+complete specification or verification coverage and is not a novel formal
+algorithm. Local execution remains **NOT RUN** when Yosys is unavailable.

@@ -115,16 +115,18 @@ warning. The working-tree workflow now uses `actions/checkout@v7`,
 release manifests use Node.js 24. Ubuntu 24.04, Python 3.12, permissions, verification
 commands and artifact settings are unchanged. See the
 [action release evidence](evidence/review-1621da9/action-releases.json).
-**NOT RUN:** this upgraded workflow has not executed on GitHub. The two successful
-historical runs used the previous action versions and do not validate this change.
+The updated action versions were executed successfully in the later phase runs
+listed in [EVIDENCE_INDEX.md](EVIDENCE_INDEX.md); those runs supersede the
+earlier historical records for CI status.
 
 Advanced OOP/native covergroups remain **NOT RUN locally** because this machine
 has no compatible simulator or Z3. A dedicated Verilator 5.052 workflow and
-`make advanced` target have been added, but the new job has not yet run on
-GitHub, so no native coverage totals or advanced pass are claimed. The 142-bin
-plan is custom functional coverage, not code coverage or native covergroup
-coverage. Local 142/142 results are not relabeled as CI measurements. Each CI
-conclusion applies only to its recorded commit.
+`make advanced` target passed in
+[run 41591123907](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/41591123907),
+with 4,096 transactions and complete native coverage. The 142-bin plan is
+custom functional coverage, not code coverage or native covergroup coverage.
+Local 142/142 results are not relabeled as CI measurements. Each CI conclusion
+applies only to its recorded commit.
 <!-- github-actions:end -->
 
 ## Formal verification status (separate from simulation)

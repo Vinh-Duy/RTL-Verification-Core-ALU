@@ -49,10 +49,10 @@ watchdog and configurable subprocess timeout bound execution.
 
 The flat SV example remains directly runnable. The shared advanced environment
 separates generator, driver, monitor, scoreboard and coverage sampling using
-bounded mailboxes and acknowledgments. The new `make advanced` runner and pinned
-Verilator 5.052 CI job have not yet executed on this revision; see
-[ADVANCED_SUITE.md](ADVANCED_SUITE.md). No results from Python are attributed to
-native covergroups.
+bounded mailboxes and acknowledgments. The pinned Verilator 5.052 CI job passed
+in [run 41591123907](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/41591123907);
+see [ADVANCED_SUITE.md](ADVANCED_SUITE.md). No results from Python are attributed
+to native covergroups.
 
 ## 7. Reference Model
 
@@ -152,7 +152,7 @@ its results do not overwrite these historical measurements.
 | Exhaustive ALU | 524,288 checked, all passed; 24.183 s |
 | Adder example | 65,558 passed, including all 65,536 input pairs |
 | Verifier tests | 16 unit/integration tests passed; ADD and X-output mutants rejected |
-| Advanced OOP / native covergroups | NOT RUN |
+| Advanced OOP / native covergroups | PASS in CI; NOT RUN locally |
 <!-- measured-results:end -->
 
 [RESULTS.md](RESULTS.md) lists every retained local configuration with simulator,
@@ -182,8 +182,10 @@ changes clarify widths and signedness; no functional arithmetic bug was establis
 
 ## 17. Limitations
 
-Advanced OOP and native covergroups remain unexecuted on this revision; the new
-Verilator 5.052 job is pending its first GitHub Actions run.
+Advanced OOP and native covergroups remain **NOT RUN locally** on this machine.
+The pinned Verilator 5.052 job passed in
+[run 41591123907](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/41591123907)
+with 4,096 transactions, same-seed reproduction, and complete native coverage.
 Verilator lint remains unexecuted in the original local experiment, although the
 portable CI run passed with Verilator installed. Manual GTKWave viewing remains
 unexecuted, and detailed CI logs and artifact contents were not independently
@@ -191,8 +193,8 @@ inspected in this review. The workflow now selects Node.js 24 action majors, but
 that edited workflow has **NOT RUN** on GitHub; both verified runs predate the upgrade.
 No synthesis, gate-level, physical timing or code coverage has been performed.
 A Yosys combinational SAT miter was added after this report's recorded experiments;
-its proof is **NOT RUN** locally because Yosys is unavailable. CI run #4 passed the
-formal job on commit `68a0f9f`; see [formal run metadata](evidence/github-actions-formal.json)
+its proof is **NOT RUN** locally because Yosys is unavailable. The formal job
+passed in the later run cited above; see [formal run metadata](evidence/github-actions-formal.json)
 and [FORMAL_VERIFICATION.md](FORMAL_VERIFICATION.md). Four-state testing is targeted,
 not exhaustive. Delay-based settling assumes the current zero-delay combinational
 DUT. Functional bin selection is intentionally limited, not a universal completeness
@@ -201,9 +203,7 @@ the testbench enforces its known-input contract.
 
 ## 18. Future Work
 
-Execute and review the advanced job's uploaded evidence on GitHub; retain CI
-checks for subsequent commits and validate the pending action-version upgrade;
-consider synthesis and timing experiments with a
+Retain CI checks for subsequent commits and consider synthesis and timing experiments with a
 specified target technology; and extend four-state tests if the input contract
 changes. Keep each addition tied to a measurable question. UVM migration and new
 hardware blocks are outside the current scope.

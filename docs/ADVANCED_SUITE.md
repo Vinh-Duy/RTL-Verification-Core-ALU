@@ -7,25 +7,28 @@ The runner is pinned to Verilator 5.052, checks the CRV/covergroup feature probe
 executes the real OOP bench twice with the same seed, runs the native coverage
 wrapper, and requires a controlled faulty-ALU run to fail its scoreboard.
 
-This change has **not yet been executed with Verilator 5.052**. The local machine
-has Icarus Verilog but no Verilator or Z3, and this request explicitly does not
-authorize a commit or push. Therefore no advanced simulator pass, native coverage
-total, or negative-control result is claimed yet. A subsequent GitHub Actions run
-with the dependency correction is needed to complete the evidence. `make advanced`
-exits nonzero and prints `ADVANCED NOT RUN` when a required executable is absent.
+The local machine used for portable evidence has Icarus Verilog but no Verilator
+or Z3, so `make advanced` is **NOT RUN locally**. The pinned Ubuntu CI job has
+since executed successfully. The final pre-portfolio validation is
+[run 41591123907](https://github.com/Vinh-Duy/RTL-Verification-Core-ALU/actions/runs/41591123907)
+for commit `bced75a`; it passed the advanced job with Verilator 5.052, 4,096
+transactions, same-seed reproduction, 100% native covergroup coverage, and a
+passing negative control. `make advanced` exits nonzero and prints `ADVANCED NOT
+RUN` when a required executable is absent.
 The workflow creates an initial `summary.json` before setup, captures dependency
 and build exit codes, and finalizes that report before the always-run artifact
 upload. The runner's report includes its exit code, preflight versions, stopping
 stage, and stage log paths.
 
-The GitHub Actions run for commit `bbb063e` (run 6, 2026-10-29) confirms why no
-advanced tests ran: dependency installation succeeded, but building Verilator
+The GitHub Actions run for commit `bbb063e` (run 6, 2026-10-29) is historical
+evidence explaining why no advanced tests ran at that point: dependency
+installation succeeded, but building Verilator
 failed in `src/obj_dbg` and `src/obj_opt` while compiling `V3ParseLex.cpp`:
 `fatal error: FlexLexer.h: No such file or directory`. The build exited 2, so the
-advanced test step was skipped. This is a missing Flex development-header
+advanced test step was skipped. This was a missing Flex development-header
 dependency, not a simulator feature-probe or testbench failure. The workflow now
-installs `libfl-dev` and preserves installation/build logs; this correction still
-requires a subsequent CI run for validation.
+installs `libfl-dev` and preserves installation/build logs; the later runs cited
+above validate the correction.
 
 ## Source audit
 
