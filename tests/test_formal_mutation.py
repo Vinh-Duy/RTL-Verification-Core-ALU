@@ -1,4 +1,3 @@
-import csv
 import json
 import subprocess
 import sys
@@ -17,7 +16,6 @@ from formal.mutation_audit import (
     evaluate_mutant,
     generate_mutant,
     main as mutation_main,
-    metrics,
     parse_counterexample_vcd,
     read_sat_status,
     run_compile,
