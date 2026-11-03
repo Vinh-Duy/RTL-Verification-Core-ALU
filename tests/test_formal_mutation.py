@@ -384,6 +384,13 @@ class FormalMutationTests(unittest.TestCase):
         self.assertEqual(read_sat_status("SAT solving finished - timeout", 0), "TIMEOUT")
         self.assertEqual(read_sat_status("malformed solver output", 0), "TOOL_ERROR")
         self.assertEqual(read_sat_status("SAT solving finished - unknown", 0), "UNKNOWN")
+        self.assertEqual(read_sat_status("SAT proof finished - model found: FAIL!", 0), "SAT")
+        self.assertEqual(
+            read_sat_status("SAT proof finished - no model found: SUCCESS!", 0),
+            "UNSAT",
+        )
+        self.assertEqual(read_sat_status("SAT proof finished - timeout", 0), "TIMEOUT")
+        self.assertEqual(read_sat_status("SAT proof finished - unknown", 0), "UNKNOWN")
         self.assertEqual(
             read_sat_status(
                 "SAT solving finished - model found: FAIL!\n"

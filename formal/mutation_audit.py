@@ -269,13 +269,16 @@ def run_yosys(yosys: str, script: str, log_path: Path, timeout: int) -> tuple[in
 def solver_result(log: str, return_code: int | None) -> str:
     lowered = log.lower()
     results = []
-    if re.search(r"sat solving finished\s*-\s*model found:\s*fail!", lowered):
+    if re.search(r"sat (?:solving|proof) finished\s*-\s*model found:\s*fail!", lowered):
         results.append("SAT")
-    if re.search(r"sat solving finished\s*-\s*no model found:\s*success!", lowered):
+    if re.search(
+        r"sat (?:solving|proof) finished\s*-\s*no model found:\s*success!",
+        lowered,
+    ):
         results.append("UNSAT")
     if is_solver_timeout(lowered):
         results.append("TIMEOUT")
-    if re.search(r"sat solving finished\s*-\s*unknown\b", lowered):
+    if re.search(r"sat (?:solving|proof) finished\s*-\s*unknown\b", lowered):
         results.append("UNKNOWN")
     if return_code is None:
         return "TIMEOUT"
@@ -291,6 +294,7 @@ def is_solver_timeout(log: str) -> bool:
         marker in log
         for marker in (
             "sat solving finished - timeout",
+            "sat proof finished - timeout",
             "solver timeout",
             "timeout during sat solving",
             "timed out",
